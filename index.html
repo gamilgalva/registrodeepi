@@ -15,7 +15,7 @@
         .nav-link { color: #64748b; padding: 12px 20px; border-radius: 12px; margin: 5px 15px; cursor: pointer; text-decoration: none; font-weight: 600; display: flex; align-items: center; transition: 0.2s; }
         .nav-link.active { background: var(--gamil-blue); color: white !important; box-shadow: 0 4px 12px rgba(30,91,176,0.2); }
         .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: white; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: white; }
         .status-badge { padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .st-uso { background: #dcfce7; color: #166534; }
         .st-dev { background: #f1f5f9; color: #475569; }
@@ -50,7 +50,7 @@
             <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-boxes-stacked me-3"></i>Inventário</a>
         </div>
         <div class="mt-auto p-4 border-top text-center">
-            <b id="loggedUser" class="small text-primary text-truncate d-block px-2"></b>
+            <b id="loggedUser" class="small text-primary d-block"></b>
             <button class="btn btn-outline-danger btn-sm w-100 mt-3" id="btnLogout">Sair</button>
         </div>
     </nav>
@@ -58,7 +58,7 @@
     <main class="main-content">
         <section id="sec-entregas" class="content-sec">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0 text-dark">Histórico de Movimentação</h3>
+                <h3 class="fw-bold m-0">Movimentação</h3>
                 <button class="btn btn-primary shadow-sm" id="btnNovaEntrega"><i class="fas fa-plus me-2"></i>Registrar Saída</button>
             </div>
             <div class="card p-4"><table class="table align-middle"><thead><tr><th>Funcionário</th><th>Item</th><th>Data</th><th>Estado</th><th>Ação</th></tr></thead><tbody id="listEntregas"></tbody></table></div>
@@ -66,7 +66,7 @@
 
         <section id="sec-func" class="content-sec" style="display:none">
             <div class="d-flex justify-content-between mb-4">
-                <h3 class="fw-bold text-dark">Gestão de Colaboradores</h3>
+                <h3 class="fw-bold">Equipe Gamil</h3>
                 <button class="btn btn-primary shadow-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Cadastro</button>
             </div>
             <div id="listFunc" class="row g-3"></div>
@@ -74,37 +74,47 @@
 
         <section id="sec-epi" class="content-sec" style="display:none">
             <div class="d-flex justify-content-between mb-4">
-                <h3 class="fw-bold text-dark">Inventário de Ativos</h3>
+                <h3 class="fw-bold">Inventário de Ativos</h3>
                 <button class="btn btn-primary shadow-sm" onclick="abrirModalEpi()"><i class="fas fa-cart-plus me-2"></i>Novo Item</button>
             </div>
-            <div class="card p-4">
-                <table class="table align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>ID / CA</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="listEpi"></tbody></table>
-            </div>
+            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>ID / CA</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
         </section>
     </main>
 </div>
 
-<div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Registrar Devolução / Baixa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que deseja fazer com este item de <br><b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><i class="fas fa-trash-alt d-block mb-1"></i> <b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><i class="fas fa-redo d-block mb-1"></i> <b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"><input type="hidden" id="devFuncId"></div></div></div></div>
+<div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Devolução / Baixa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que deseja fazer com este item de <br><b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><i class="fas fa-trash-alt d-block mb-1"></i> <b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><i class="fas fa-redo d-block mb-1"></i> <b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"><input type="hidden" id="devFuncId"></div></div></div></div>
 
-<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Saída de Material/Ferramenta</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">Item</label><select id="selEpi" class="form-select mb-3" required></select><div class="row"><div class="col-6"><label class="small fw-bold">Quantidade</label><input type="number" id="qtdEnt" class="form-control mb-3" value="1" required></div><div class="col-6"><label class="small fw-bold">Data Real</label><input type="date" id="dataEntManual" class="form-control mb-3"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar Entrega</button></div></form></div></div>
+<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">Item</label><select id="selEpi" class="form-select mb-3" required></select><div class="row"><div class="col-6"><label class="small fw-bold">Quantidade</label><input type="number" id="qtdEnt" class="form-control mb-3" value="1" required></div><div class="col-6"><label class="small fw-bold">Data Real</label><input type="date" id="dataEntManual" class="form-control mb-3"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar Entrega</button></div></form></div></div>
 
-<div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Itens em Posse (Ativos)</h6><table class="table table-sm align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico Geral</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
+<div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Itens Ativos</h6><table class="table table-sm align-middle"><thead><tr><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
+
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc">
+    <input type="hidden" id="editFuncId">
+    <div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required>
+        <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
+        <input type="date" id="fadm" class="form-control mb-3" required>
+        <label class="small fw-bold mb-1">Vínculo</label>
+        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
+        <div id="boxSub"><label class="small fw-bold mb-1">Empresa Subcontratada</label><input type="text" id="fempresa" class="form-control"></div>
+    </div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Dados</button></div>
+</form></div></div>
 
 <div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi">
     <input type="hidden" id="editEpiId">
     <div class="modal-header"><h5>Informação do Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <label class="small fw-bold">Categoria</label>
-        <select id="ecat" class="form-select mb-2"><option value="EPI">EPI (Proteção)</option><option value="Ferramenta">Ferramenta (Lixas, Limas, etc)</option></select>
-        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome do Item" required>
-        <input type="text" id="eca" class="form-control mb-2" placeholder="ID / CA / Serial">
+        <select id="ecat" class="form-select mb-2"><option value="EPI">EPI (Proteção)</option><option value="Ferramenta">Ferramenta</option></select>
+        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required>
+        <input type="text" id="eca" class="form-control mb-2" placeholder="CA / Serial">
         <input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil (Dias)" required>
-        <input type="number" id="eqtd" class="form-control mb-2" placeholder="Qtd Inicial Stock" required>
+        <input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Guardar no Inventário</button></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
 </form></div></div>
-
-<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc"><input type="hidden" id="editFuncId"><div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required><input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required><input type="date" id="fadm" class="form-control mb-3" required><label class="small fw-bold mb-1">Vínculo</label><select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select><div id="boxSub"><label class="small fw-bold mb-1">Empresa Subcontratada</label><input type="text" id="fempresa" class="form-control"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -140,25 +150,22 @@
         sF.innerHTML = ""; sE.innerHTML = "";
         const fS = await getDocs(collection(db, "equipe")); const eS = await getDocs(collection(db, "epis"));
         fS.forEach(d => sF.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
-        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome} [${d.data().cat || 'EPI'}] (${d.data().qtd})</option>`);
+        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome} [${d.data().cat || 'EPI'}]</option>`);
         new bootstrap.Modal('#mEntrega').show();
     };
 
     document.getElementById('fEntrega').onsubmit = async (e) => {
         e.preventDefault();
-        const selE = selEpi.options[selEpi.selectedIndex];
-        const vida = parseInt(selE.dataset.vida);
+        const vida = parseInt(selEpi.options[selEpi.selectedIndex].dataset.vida);
         let dataH = dataEntManual.value ? new Date(dataEntManual.value + 'T12:00:00') : new Date();
         let dataT = new Date(dataH); dataT.setDate(dataH.getDate() + vida);
-        const eId = selEpi.value;
         await addDoc(collection(db, "entregas"), {
             fId: selFunc.value, fNome: selFunc.options[selFunc.selectedIndex].text,
-            eNome: selE.text.split(' [')[0], eId: eId,
+            eNome: selEpi.options[selEpi.selectedIndex].text.split(' [')[0], eId: selEpi.value,
             dataE: dataH.getTime(), dataT: dataT.getTime(), status: "Em Uso", resp: myEmail
         });
-        await updateDoc(doc(db, "epis", eId), { qtd: increment(-parseInt(qtdEnt.value)) });
+        await updateDoc(doc(db, "epis", selEpi.value), { qtd: increment(-parseInt(qtdEnt.value)) });
         bootstrap.Modal.getInstance(document.getElementById('mEntrega')).hide();
-        e.target.reset();
     };
 
     window.abrirModalDevolucao = (id, n, eid, fid) => {
@@ -170,11 +177,11 @@
     };
 
     window.processarDevolucao = async (s) => {
-        const id = devEntregaId.value; const eid = devEpiId.value; const fid = devFuncId.value; const fnome = devNomeFunc.innerText;
+        const id = devEntregaId.value; const eid = devEpiId.value; const fid = devFuncId.value;
         await updateDoc(doc(db, "entregas", id), { status: s, dataDev: serverTimestamp() });
         if(s === 'Devolvido') await updateDoc(doc(db, "epis", eid), { qtd: increment(1) });
         bootstrap.Modal.getInstance(document.getElementById('mDevolucao')).hide();
-        verFicha(fid, fnome);
+        verFicha(fid, devNomeFunc.innerText);
     };
 
     function renderAll() {
@@ -190,7 +197,7 @@
             const list = document.getElementById('listFunc'); list.innerHTML = "";
             snap.forEach(d => {
                 const f = d.data();
-                list.innerHTML += `<div class="col-md-4"><div class="card p-3 h-100"><div class="fw-bold fs-5">${f.nome}</div><small class="text-muted">ID: ${f.mat}</small><div class="mt-3 d-flex gap-1"><button class="btn btn-sm btn-primary flex-grow-1" onclick="verFicha('${d.id}', '${f.nome}')">HISTÓRICO</button><button class="btn btn-sm btn-light text-danger" onclick="rem('equipe','${d.id}')"><i class="fas fa-trash-can"></i></button></div></div></div>`;
+                list.innerHTML += `<div class="col-md-4"><div class="card p-3 h-100"><div class="fw-bold fs-5">${f.nome}</div><small class="text-muted">ID: ${f.mat} | ${f.empresa || 'Gamil'}</small><div class="mt-3 d-flex gap-1"><button class="btn btn-sm btn-primary flex-grow-1" onclick="verFicha('${d.id}', '${f.nome}')">HISTÓRICO</button><button class="btn btn-sm btn-light" onclick="editFunc('${d.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="rem('equipe','${d.id}')"><i class="fas fa-trash-can"></i></button></div></div></div>`;
             });
         });
         onSnapshot(collection(db, "epis"), snap => {
@@ -211,26 +218,26 @@
         q.forEach(d => {
             const i = d.data();
             if(i.fId === id) {
-                if(i.status === 'Em Uso') lA.innerHTML += `<tr><td><i class="fas fa-tag small opacity-50"></i> ${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><button class="btn btn-xs btn-danger py-0 px-2" style="font-size:0.7rem" onclick="abrirModalDevolucao('${d.id}','${nome}','${i.eId}','${id}')">Devolver</button></td></tr>`;
-                else lH.innerHTML += `<tr><td>${i.eNome}</td><td>${i.status} em ${i.dataDev ? i.dataDev.toDate().toLocaleDateString() : '-'}</td><td><button class="btn btn-xs text-danger py-0" onclick="rem('entregas','${d.id}')">X</button></td></tr>`;
+                if(i.status === 'Em Uso') lA.innerHTML += `<tr><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><button class="btn btn-xs btn-danger px-2" style="font-size:0.7rem" onclick="abrirModalDevolucao('${d.id}','${nome}','${i.eId}','${id}')">Devolver</button></td></tr>`;
+                else lH.innerHTML += `<tr><td>${i.eNome}</td><td>${i.status} (${i.dataDev ? i.dataDev.toDate().toLocaleDateString() : '-'})</td><td><button class="btn btn-xs text-danger" onclick="rem('entregas','${d.id}')">X</button></td></tr>`;
             }
         });
         bootstrap.Modal.getOrCreateInstance('#mFicha').show();
     };
 
-    window.rem = async (c, id) => { if(confirm("Remover permanentemente?")) await deleteDoc(doc(db, c, id)); };
     window.abrirModalFunc = () => { document.getElementById('fFunc').reset(); editFuncId.value = ""; toggleSub('Direto'); new bootstrap.Modal('#mFunc').show(); };
     document.getElementById('fFunc').onsubmit = async (e) => {
         e.preventDefault(); const id = editFuncId.value;
-        const d = { nome: fnome.value, mat: fmat.value, adm: fadm.value, vinculo: fvinculo.value, empresa: fempresa.value };
+        const d = { nome: fnome.value, mat: fmat.value, adm: fadm.value, vinculo: fvinculo.value, empresa: fvinculo.value === 'Subcontratada' ? fempresa.value : 'Gamil' };
         id ? await updateDoc(doc(db, "equipe", id), d) : await addDoc(collection(db, "equipe"), d);
         bootstrap.Modal.getInstance(document.getElementById('mFunc')).hide();
     };
-    window.editEpi = async (id) => {
-        const d = await getDoc(doc(db, "epis", id)); const e = d.data();
-        enome.value = e.nome; eca.value = e.ca; evida.value = e.vida; eqtd.value = e.qtd; ecat.value = e.cat || 'EPI'; editEpiId.value = id;
-        new bootstrap.Modal('#mEpi').show();
+    window.editFunc = async (id) => {
+        const docSnap = await getDoc(doc(db, "equipe", id)); const f = docSnap.data();
+        fnome.value = f.nome; fmat.value = f.mat; fadm.value = f.adm; fvinculo.value = f.vinculo; fempresa.value = f.empresa || "";
+        editFuncId.value = id; toggleSub(f.vinculo); new bootstrap.Modal('#mFunc').show();
     };
+
     window.abrirModalEpi = () => { document.getElementById('fEpi').reset(); editEpiId.value = ""; new bootstrap.Modal('#mEpi').show(); };
     document.getElementById('fEpi').onsubmit = async (e) => {
         e.preventDefault(); const id = editEpiId.value;
@@ -238,6 +245,11 @@
         id ? await updateDoc(doc(db, "epis", id), d) : await addDoc(collection(db, "epis"), d);
         bootstrap.Modal.getInstance(document.getElementById('mEpi')).hide();
     };
+    window.editEpi = async (id) => {
+        const dS = await getDoc(doc(db, "epis", id)); const e = dS.data();
+        enome.value = e.nome; eca.value = e.ca; evida.value = e.vida; eqtd.value = e.qtd; ecat.value = e.cat || 'EPI'; editEpiId.value = id; new bootstrap.Modal('#mEpi').show();
+    };
+    window.rem = async (c, id) => { if(confirm("Apagar permanentemente?")) await deleteDoc(doc(db, c, id)); };
     window.showSec = (id, el) => {
         document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
