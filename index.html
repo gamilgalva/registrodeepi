@@ -3,216 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamil - Gestor de EPI</title>
+    <title>Gamil - Gestão de EPI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --gamil-blue: #1e5bb0; 
-            --gamil-dark: #333333;
-            --gamil-light: #f4f7f6;
-        }
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', system-ui, sans-serif; }
-        
-        /* Sidebar customizada Gamil */
-        .sidebar { background: white; min-height: 100vh; border-right: 1px solid #ddd; padding: 20px; position: fixed; width: inherit; }
-        .logo-box { text-align: center; padding-bottom: 20px; border-bottom: 2px solid var(--gamil-blue); margin-bottom: 25px; }
-        .logo-box img { max-width: 150px; }
-        
-        .nav-link { color: #666; font-weight: 500; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
-        .nav-link:hover { background: #f0f4f8; color: var(--gamil-blue); }
+        :root { --gamil-blue: #1e5bb0; --gamil-gray: #7b7b7b; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        #login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .login-card { width: 100%; max-width: 400px; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid var(--gamil-blue); }
+        #main-content { display: none; }
+        .sidebar { background: white; min-height: 100vh; border-right: 1px solid #ddd; padding: 20px; position: fixed; width: 260px; }
+        main { margin-left: 270px; padding: 30px; }
+        .nav-link { color: var(--gamil-gray); cursor: pointer; border-radius: 8px; margin-bottom: 8px; font-weight: 500; }
         .nav-link.active { background: var(--gamil-blue); color: white !important; }
-
-        /* Conteúdo */
-        main { margin-left: 16.666%; padding: 30px; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .btn-primary { background: var(--gamil-blue); border: none; padding: 10px 20px; border-radius: 8px; }
-        .badge-estoque { font-size: 0.9rem; padding: 5px 10px; border-radius: 6px; }
-        
-        @media (max-width: 768px) {
-            .sidebar { position: relative; min-height: auto; width: 100%; }
-            main { margin-left: 0; }
-        }
+        .logo-box { border-bottom: 2px solid var(--gamil-blue); margin-bottom: 25px; padding-bottom: 15px; text-align: center; }
+        .logo-box img { max-width: 170px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .user-badge { font-size: 0.75rem; color: var(--gamil-gray); display: block; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-3 col-lg-2 sidebar">
-            <div class="logo-box">
-                <img src="logo.png" alt="Gamil Logo">
-            </div>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link active" onclick="showSection('sec-func', this)"><i class="fas fa-users me-2"></i>Equipe</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('sec-epi', this)"><i class="fas fa-boxes-stacked me-2"></i>EPIs</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('sec-hist', this)"><i class="fas fa-exchange-alt me-2"></i>Entregas</a></li>
-            </ul>
-        </nav>
-
-        <main class="col-md-9 col-lg-10">
-            
-            <section id="sec-func" class="content-section">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-dark">Colaboradores</h2>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFunc"><i class="fas fa-user-plus me-2"></i>Novo</button>
-                </div>
-                <div class="card p-3">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light"><tr><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Ações</th></tr></thead>
-                        <tbody id="listaFunc"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="sec-epi" class="content-section d-none">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-dark">Estoque de EPI</h2>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEpi"><i class="fas fa-box me-2"></i>Cadastrar Item</button>
-                </div>
-                <div class="card p-3">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light"><tr><th>Material</th><th>CA</th><th>Quantidade</th><th>Ações</th></tr></thead>
-                        <tbody id="listaEpi"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="sec-hist" class="content-section d-none">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-dark">Histórico de Entregas</h2>
-                    <button class="btn btn-primary" onclick="abrirModalEntrega()"><i class="fas fa-hand-holding me-2"></i>Registrar Saída</button>
-                </div>
-                <div class="card p-3">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light"><tr><th>Quem Recebeu</th><th>EPI</th><th>Data</th><th>Status</th></tr></thead>
-                        <tbody id="listaHist"></tbody>
-                    </table>
-                </div>
-            </section>
-
-        </main>
+<div id="login-screen">
+    <div class="login-card">
+        <img src="logo.png" alt="Gamil Galva" style="max-width: 220px; margin-bottom: 25px;">
+        <h5 class="mb-4 text-secondary">Acesso Corporativo</h5>
+        <div class="text-start">
+            <label class="small fw-bold">E-mail @gamilgalva.com</label>
+            <input type="email" id="emailInput" class="form-control mb-3" placeholder="seu.nome@gamilgalva.com">
+            <label class="small fw-bold">Senha</label>
+            <input type="password" id="password" class="form-control mb-3">
+        </div>
+        <button class="btn btn-primary w-100 py-2 fw-bold" id="btnLogin">ENTRAR</button>
+        <div id="loginError" class="text-danger mt-3 small fw-bold text-center"></div>
     </div>
 </div>
 
-<div class="modal fade" id="modalFunc" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content" id="formFunc">
-            <div class="modal-header"><h5>Novo Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <input type="text" id="fnome" class="form-control mb-3" placeholder="Nome Completo" required>
-                <input type="text" id="fmat" class="form-control mb-3" placeholder="Nº Matrícula" required>
-                <input type="text" id="fcargo" class="form-control" placeholder="Cargo">
-            </div>
-            <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
-        </form>
+<div id="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="sidebar">
+                <div class="logo-box"><img src="logo.png" alt="Gamil"></div>
+                <div class="mb-4 text-center"><small class="text-muted">Usuário: </small><br><b id="loggedUser" class="small"></b></div>
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a class="nav-link active" onclick="showSec('sec-func', this)"><i class="fas fa-users me-2"></i>Equipe</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-box me-2"></i>Estoque</a></li>
+                    <li class="nav-item mt-5"><button class="btn btn-sm btn-outline-danger w-100" id="btnLogout">Sair</button></li>
+                </ul>
+            </nav>
+
+            <main>
+                <section id="sec-func" class="content-sec">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Equipe Gamil</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mFunc">Novo Colaborador</button>
+                    </div>
+                    <div class="card p-4">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light"><tr><th>Nome</th><th>Matrícula / Cargo</th><th>Responsável Registro</th><th>Ações</th></tr></thead>
+                            <tbody id="listFunc"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="sec-epi" class="content-sec" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Estoque</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mEpi">Adicionar Item</button>
+                    </div>
+                    <div class="card p-4">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light"><tr><th>EPI</th><th>Qtd / CA</th><th>Última Alteração</th><th>Ações</th></tr></thead>
+                            <tbody id="listEpi"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalEpi" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content" id="formEpi">
-            <div class="modal-header"><h5>Novo EPI no Estoque</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <input type="text" id="enome" class="form-control mb-3" placeholder="Nome do EPI (ex: Luvas de Nitrilo)" required>
-                <input type="text" id="eca" class="form-control mb-3" placeholder="CA (Certificado de Aprovação)" required>
-                <input type="number" id="eqtd" class="form-control" placeholder="Quantidade em Estoque" required>
-            </div>
-            <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Adicionar</button></div>
-        </form>
-    </div>
-</div>
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fFunc"><div class="modal-body"><input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required><input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required><input type="text" id="fcargo" class="form-control" placeholder="Cargo" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
+
+<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fEpi"><div class="modal-header"><h5>Novo Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="enome" class="form-control mb-2" placeholder="Nome EPI" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA" required><input type="number" id="eqtd" class="form-control" placeholder="Qtd" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, orderBy } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Suas chaves fornecidas
     const firebaseConfig = {
         apiKey: "AIzaSyAUV-fh15eg_1T3brh0xFL1mKtEaj2cDQE",
         authDomain: "gamil-epi-manager.firebaseapp.com",
         projectId: "gamil-epi-manager",
         storageBucket: "gamil-epi-manager.firebasestorage.app",
         messagingSenderId: "480134215538",
-        appId: "1:480134215538:web:1e623b38daf2eaea780feb",
-        measurementId: "G-Q3CF2MF3Q5"
+        appId: "1:480134215538:web:1e623b38daf2eaea780feb"
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- LÓGICA DE SINCRONIZAÇÃO EM TEMPO REAL ---
+    let currentUserEmail = "";
 
-    // Sincronizar Funcionários
-    onSnapshot(collection(db, "equipe"), (snap) => {
-        const lista = document.getElementById('listaFunc');
-        lista.innerHTML = "";
-        snap.forEach(d => {
-            const f = d.data();
-            lista.innerHTML += `<tr>
-                <td><b>${f.nome}</b></td>
-                <td>${f.matricula}</td>
-                <td><span class="badge bg-light text-dark border">${f.cargo}</span></td>
-                <td><button class="btn btn-sm text-danger" onclick="remover('equipe','${d.id}')"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
-        });
-    });
-
-    // Sincronizar EPIs
-    onSnapshot(collection(db, "epis"), (snap) => {
-        const lista = document.getElementById('listaEpi');
-        lista.innerHTML = "";
-        snap.forEach(d => {
-            const e = d.data();
-            lista.innerHTML += `<tr>
-                <td><b>${e.nome}</b></td>
-                <td><small class="text-muted">CA ${e.ca}</small></td>
-                <td><span class="badge badge-estoque ${e.qtd < 5 ? 'bg-danger':'bg-success'}">${e.qtd} un</span></td>
-                <td><button class="btn btn-sm text-danger" onclick="remover('epis','${d.id}')"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
-        });
-    });
-
-    // --- FUNÇÕES DE SALVAMENTO ---
-
-    document.getElementById('formFunc').onsubmit = async (e) => {
-        e.preventDefault();
-        await addDoc(collection(db, "equipe"), {
-            nome: document.getElementById('fnome').value,
-            matricula: document.getElementById('fmat').value,
-            cargo: document.getElementById('fcargo').value
-        });
-        bootstrap.Modal.getInstance(document.getElementById('modalFunc')).hide();
-        e.target.reset();
+    document.getElementById('btnLogin').onclick = () => {
+        signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(() => loginError.innerText = "Falha no login.");
     };
+    document.getElementById('btnLogout').onclick = () => signOut(auth);
 
-    document.getElementById('formEpi').onsubmit = async (e) => {
-        e.preventDefault();
-        await addDoc(collection(db, "epis"), {
-            nome: document.getElementById('enome').value,
-            ca: document.getElementById('eca').value,
-            qtd: parseInt(document.getElementById('eqtd').value)
-        });
-        bootstrap.Modal.getInstance(document.getElementById('modalEpi')).hide();
-        e.target.reset();
-    };
-
-    window.remover = async (coll, id) => {
-        if(confirm("Deseja apagar este registro permanentemente da Gamil?")) {
-            await deleteDoc(doc(db, coll, id));
+    onAuthStateChanged(auth, user => {
+        document.getElementById('login-screen').style.display = user ? 'none' : 'flex';
+        document.getElementById('main-content').style.display = user ? 'block' : 'none';
+        if(user) {
+            currentUserEmail = user.email;
+            document.getElementById('loggedUser').innerText = user.email.split('@')[0];
+            renderAll();
         }
+    });
+
+    // EQUIPE
+    document.getElementById('fFunc').onsubmit = async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "equipe"), { 
+            nome: fnome.value, matricula: fmat.value, cargo: fcargo.value, 
+            registradoPor: currentUserEmail, data: serverTimestamp() 
+        });
+        bootstrap.Modal.getInstance(document.getElementById('mFunc')).hide();
+        e.target.reset();
     };
 
-    // Navegação
-    window.showSection = (id, el) => {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.add('d-none'));
-        document.getElementById(id).classList.remove('d-none');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    // ESTOQUE
+    document.getElementById('fEpi').onsubmit = async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "epis"), { 
+            nome: enome.value, ca: eca.value, qtd: parseInt(eqtd.value), 
+            alteradoPor: currentUserEmail, data: serverTimestamp() 
+        });
+        bootstrap.Modal.getInstance(document.getElementById('mEpi')).hide();
+        e.target.reset();
+    };
+
+    function renderAll() {
+        onSnapshot(query(collection(db, "equipe"), orderBy("data", "desc")), snap => {
+            const list = document.getElementById('listFunc');
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const f = d.data();
+                list.innerHTML += `<tr><td><b>${f.nome}</b></td><td>${f.matricula}<br><small>${f.cargo}</small></td><td><span class="user-badge">${f.registradoPor || 'Sistema'}</span></td><td><button class="btn btn-sm text-danger" onclick="remover('equipe','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+        });
+
+        onSnapshot(query(collection(db, "epis"), orderBy("data", "desc")), snap => {
+            const list = document.getElementById('listEpi');
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const e = d.data();
+                list.innerHTML += `<tr><td><b>${e.nome}</b></td><td>CA: ${e.ca}<br>Qtd: ${e.qtd}</td><td><span class="user-badge">${e.alteradoPor || 'Sistema'}</span></td><td><button class="btn btn-sm text-danger" onclick="remover('epis','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+        });
+    }
+
+    window.remover = async (c, id) => { if(confirm("Confirmar exclusão?")) await deleteDoc(doc(db, c, id)); };
+    window.showSec = (id, el) => {
+        document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     };
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
