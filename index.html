@@ -2,37 +2,87 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gamil ERP - BI & Gestão de Ativos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --gamil-blue: #1e5bb0; --sidebar-width: 280px; }
-        body { background: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .app-wrapper { display: flex; height: 100vh; }
-        .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        /* Estrutura Principal */
+        .app-wrapper { display: flex; height: 100vh; width: 100vw; position: relative; }
+        
+        /* Sidebar Responsiva */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: white; 
+            border-right: 1px solid #e2e8f0; 
+            display: flex; 
+            flex-direction: column; 
+            transition: all 0.3s ease;
+            z-index: 1050;
+        }
+
+        /* Mobile Header - Só aparece no telemóvel */
+        .mobile-header {
+            display: none;
+            background: white;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+        }
+
         .logo-box { padding: 25px; border-bottom: 1px solid #f1f5f9; text-align: center; }
-        .nav-link { color: #64748b; padding: 12px 20px; border-radius: 12px; margin: 5px 15px; cursor: pointer; text-decoration: none; font-weight: 600; display: flex; align-items: center; transition: 0.2s; }
+        .logo-box img { max-width: 150px; }
+        .nav-link { color: #64748b; padding: 12px 20px; border-radius: 12px; margin: 5px 15px; cursor: pointer; text-decoration: none; font-weight: 600; display: flex; align-items: center; }
         .nav-link.active { background: var(--gamil-blue); color: white !important; box-shadow: 0 4px 12px rgba(30,91,176,0.2); }
-        .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; position: relative; }
+        
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
         .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
+        
+        /* Status Badges */
         .status-badge { padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .st-uso { background: #dcfce7; color: #166534; }
         .st-dev { background: #f1f5f9; color: #475569; }
         .st-aba { background: #fee2e2; color: #991b1b; }
+        
+        /* Login */
         #login-screen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .stat-card { border-left: 5px solid var(--gamil-blue); padding: 20px; }
         #boxSub { display: none; }
-        .type-epi { color: #1e5bb0; }
-        .type-ferr { color: #f59e0b; }
+        
+        /* Ajustes para ecrãs pequenos (Mobile) */
+        @media (max-width: 991px) {
+            .mobile-header { display: flex; }
+            .sidebar { 
+                position: fixed; 
+                left: calc(var(--sidebar-width) * -1); 
+                height: 100%; 
+            }
+            .sidebar.open { left: 0; }
+            .main-content { padding: 15px; }
+            .sidebar-overlay { 
+                display: none; 
+                position: fixed; 
+                inset: 0; 
+                background: rgba(0,0,0,0.5); 
+                z-index: 1045; 
+            }
+            .sidebar-overlay.show { display: block; }
+            .stat-card h2 { font-size: 1.5rem; }
+            .table-responsive { border: 0; }
+        }
 
+        /* Impressão */
         @media print {
-            .sidebar, .btn, .nav-link, #btnLogout, .modal, .text-danger, .actions-col { display: none !important; }
-            .main-content { margin-left: 0 !important; padding: 0 !important; overflow: visible !important; width: 100% !important; }
-            .app-wrapper { display: block !important; }
-            body { background: white !important; overflow: visible !important; }
-            .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
-            h3 { color: black !important; text-align: center; margin-bottom: 30px; }
+            .sidebar, .btn, .nav-link, #btnLogout, .modal, .actions-col, .mobile-header { display: none !important; }
+            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            body { background: white !important; }
         }
     </style>
 </head>
@@ -41,7 +91,7 @@
 <div id="login-screen">
     <div class="card p-5 shadow-lg text-center" style="max-width: 400px; width: 90%;">
         <img src="logo.png" alt="Gamil" class="mb-4 mx-auto d-block" style="max-width: 180px;">
-        <h5 class="fw-bold mb-4 text-secondary">ERP Gamil Galva</h5>
+        <h5 class="fw-bold mb-4 text-secondary text-uppercase small">Acesso Restrito</h5>
         <input type="email" id="emailInput" class="form-control mb-3 py-2" placeholder="utilizador@gamilgalva.com">
         <input type="password" id="password" class="form-control mb-4 py-2" placeholder="Senha">
         <button class="btn btn-primary w-100 fw-bold py-2" id="btnLogin">ENTRAR</button>
@@ -49,9 +99,18 @@
     </div>
 </div>
 
+<div class="mobile-header">
+    <img src="logo.png" alt="Gamil" style="height: 30px;">
+    <button class="btn btn-outline-primary border-0" onclick="toggleSidebar()">
+        <i class="fas fa-bars fs-4"></i>
+    </button>
+</div>
+
 <div id="main-content-ui" class="app-wrapper" style="display:none">
-    <nav class="sidebar">
-        <div class="logo-box"><img src="logo.png" alt="Gamil" style="max-width: 150px;"></div>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <nav class="sidebar" id="sidebar">
+        <div class="logo-box d-none d-lg-block"><img src="logo.png" alt="Gamil"></div>
         <div class="nav-container py-3">
             <a class="nav-link active" onclick="showSec('sec-dash', this)"><i class="fas fa-chart-line me-3"></i>Dashboard BI</a>
             <a class="nav-link" onclick="showSec('sec-entregas', this)"><i class="fas fa-exchange-alt me-3"></i>Movimentação</a>
@@ -59,76 +118,64 @@
             <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-boxes-stacked me-3"></i>Estoque</a>
         </div>
         <div class="mt-auto p-4 border-top text-center">
-            <b id="loggedUser" class="small text-primary d-block"></b>
-            <button class="btn btn-outline-danger btn-sm w-100 mt-3" id="btnLogout">Sair</button>
+            <b id="loggedUser" class="small text-primary d-block mb-2"></b>
+            <button class="btn btn-outline-danger btn-sm w-100" id="btnLogout">Sair</button>
         </div>
     </nav>
 
     <main class="main-content">
         <section id="sec-dash" class="content-sec">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0 text-dark">Painel de Inteligência de Ativos</h3>
-                <button class="btn btn-outline-primary shadow-sm" onclick="window.print()"><i class="fas fa-print me-2"></i>Gerar Relatório</button>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <h3 class="fw-bold m-0 text-dark">Painel de Ativos</h3>
+                <button class="btn btn-outline-primary btn-sm shadow-sm" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Gerar Relatório
+                </button>
             </div>
             
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="card stat-card"><small class="text-muted">Total Saídas</small><h2 id="statSaidas" class="fw-bold">0</h2></div></div>
-                <div class="col-md-3"><div class="card stat-card border-danger"><small class="text-muted">Descarte (Lixo)</small><h2 id="statLixo" class="fw-bold text-danger">0</h2></div></div>
-                <div class="col-md-3"><div class="card stat-card border-success"><small class="text-muted">Reutilizados</small><h2 id="statReuso" class="fw-bold text-success">0</h2></div></div>
-                <div class="col-md-3"><div class="card stat-card border-warning"><small class="text-muted">Em Uso Ativo</small><h2 id="statAtivo" class="fw-bold text-warning">0</h2></div></div>
+                <div class="col-6 col-md-3"><div class="card stat-card"><small class="text-muted">Total</small><h2 id="statSaidas" class="fw-bold m-0">0</h2></div></div>
+                <div class="col-6 col-md-3"><div class="card stat-card border-danger"><small class="text-muted">Lixo</small><h2 id="statLixo" class="fw-bold text-danger m-0">0</h2></div></div>
+                <div class="col-6 col-md-3"><div class="card stat-card border-success"><small class="text-muted">Reuso</small><h2 id="statReuso" class="fw-bold text-success m-0">0</h2></div></div>
+                <div class="col-6 col-md-3"><div class="card stat-card border-warning"><small class="text-muted">Ativos</small><h2 id="statAtivo" class="fw-bold text-warning m-0">0</h2></div></div>
             </div>
 
             <div class="row g-3 mb-4">
-                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2 text-danger">Detalhamento de Lixo</h6><ul class="list-group list-group-flush" id="detalheLixo"></ul></div></div>
-                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2 text-success">Detalhamento de Reuso</h6><ul class="list-group list-group-flush" id="detalheReuso"></ul></div></div>
+                <div class="col-md-6"><div class="card p-4 h-100"><h6>Detalhamento de Lixo</h6><ul class="list-group list-group-flush small" id="detalheLixo"></ul></div></div>
+                <div class="col-md-6"><div class="card p-4 h-100"><h6>Detalhamento de Reuso</h6><ul class="list-group list-group-flush small" id="detalheReuso"></ul></div></div>
             </div>
 
             <div class="row g-3">
-                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2">Top 5 Consumidores</h6><ul class="list-group list-group-flush" id="rankingFunc"></ul></div></div>
-                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2">Itens Mais Solicitados</h6><ul class="list-group list-group-flush" id="rankingEpi"></ul></div></div>
+                <div class="col-md-6"><div class="card p-4 h-100"><h6>Top 5 Colaboradores</h6><ul class="list-group list-group-flush small" id="rankingFunc"></ul></div></div>
+                <div class="col-md-6"><div class="card p-4 h-100"><h6>Itens Mais Solicitados</h6><ul class="list-group list-group-flush small" id="rankingEpi"></ul></div></div>
             </div>
         </section>
 
         <section id="sec-entregas" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between align-items-center mb-4"><h3>Movimentação</h3><button class="btn btn-primary" id="btnNovaEntrega">Registrar Saída</button></div>
-            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Funcionário</th><th>Item</th><th>Data</th><th>Estado</th><th>Operador</th><th class="actions-col">Ação</th></tr></thead><tbody id="listEntregas"></tbody></table></div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0">Movimentação</h3>
+                <button class="btn btn-primary btn-sm" id="btnNovaEntrega"><i class="fas fa-plus"></i></button>
+            </div>
+            <div class="card table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Func.</th><th>Item</th><th>Data</th><th>Status</th><th>Op.</th><th class="actions-col">X</th></tr></thead><tbody id="listEntregas"></tbody></table></div>
         </section>
 
         <section id="sec-func" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4"><h3>Equipe</h3><button class="btn btn-primary" onclick="abrirModalFunc()">Novo Cadastro</button></div>
-            <div id="listFunc" class="row g-3"></div>
+            <div class="d-flex justify-content-between mb-4"><h3>Equipe</h3><button class="btn btn-primary btn-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus"></i></button></div>
+            <div id="listFunc" class="row g-2"></div>
         </section>
 
         <section id="sec-epi" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4"><h3>Inventário</h3><button class="btn btn-primary" onclick="abrirModalEpi()">Novo Item</button></div>
-            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>ID / CA</th><th>Estoque</th><th class="actions-col">Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
+            <div class="d-flex justify-content-between mb-4"><h3>Inventário</h3><button class="btn btn-primary btn-sm" onclick="abrirModalEpi()"><i class="fas fa-plus"></i></button></div>
+            <div class="card table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Tipo</th><th>Item</th><th>ID</th><th>Stock</th><th class="actions-col">Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
         </section>
     </main>
 </div>
 
-<div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Baixa de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que fazer com o item de <b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"><input type="hidden" id="devFuncId"></div></div></div></div>
-<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">Item</label><select id="selEpi" class="form-select mb-3" required></select><div class="row"><div class="col-6"><label class="small fw-bold">Qtd</label><input type="number" id="qtdEnt" class="form-control mb-3" value="1" required></div><div class="col-6"><label class="small fw-bold">Data</label><input type="date" id="dataEntManual" class="form-control mb-3"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar</button></div></form></div></div>
-<div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Posse Ativa</h6><table class="table table-sm align-middle"><thead><tr><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
+<div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Baixa de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que fazer com o item de <b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"><input type="hidden" id="devFuncId"></div></div></div></div>
+<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">Item</label><select id="selEpi" class="form-select mb-3" required></select><div class="row"><div class="col-6"><label class="small fw-bold">Qtd</label><input type="number" id="qtdEnt" class="form-control" value="1" required></div><div class="col-6"><label class="small fw-bold">Data</label><input type="date" id="dataEntManual" class="form-control"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar</button></div></form></div></div>
+<div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-fullscreen-sm-down modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Posse Ativa</h6><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table></div><h6 class="mt-4 text-muted">Histórico</h6><div class="table-responsive"><table class="table table-sm text-muted" style="font-size: 0.8rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
 
-<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc">
-    <input type="hidden" id="editFuncId">
-    <div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <input type="text" id="fnome" class="form-control mb-2" placeholder="Nome" required>
-        <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
-        <input type="date" id="fadm" class="form-control mb-3" required>
-        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
-        <div id="boxSub"><input type="text" id="fempresa" class="form-control" placeholder="Empresa"></div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
-</form></div></div>
-
-<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi">
-    <input type="hidden" id="editEpiId">
-    <div class="modal-header"><h5>Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body"><select id="ecat" class="form-select mb-2"><option value="EPI">EPI</option><option value="Ferramenta">Ferramenta</option></select><input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA/Serial"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required></div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
-</form></div></div>
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><form class="modal-content border-0 shadow" id="fFunc"><input type="hidden" id="editFuncId"><div class="modal-header"><h5>Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="fnome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required><input type="date" id="fadm" class="form-control mb-3" required><select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select><div id="boxSub"><input type="text" id="fempresa" class="form-control" placeholder="Empresa"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
+<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><form class="modal-content border-0 shadow" id="fEpi"><input type="hidden" id="editEpiId"><div class="modal-header"><h5>Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="ecat" class="form-select mb-2"><option value="EPI">EPI</option><option value="Ferramenta">Ferramenta</option></select><input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA/Serial"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -149,6 +196,20 @@
     const db = getFirestore(app);
     let myEmail = "";
 
+    window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.querySelector('.sidebar-overlay').classList.toggle('show');
+    };
+
+    window.showSec = (id, el) => {
+        document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if (window.innerWidth < 992) toggleSidebar();
+    };
+
+    // LOGICA FIREBASE MANTIDA
     document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(() => loginError.innerText = "Falha!");
     document.getElementById('btnLogout').onclick = () => signOut(auth);
     onAuthStateChanged(auth, u => {
@@ -161,10 +222,10 @@
 
     document.getElementById('btnNovaEntrega').onclick = async () => {
         const sF = document.getElementById('selFunc'); const sE = document.getElementById('selEpi');
-        sF.innerHTML = ""; sE.innerHTML = "";
+        sF.innerHTML = "Carregando..."; sE.innerHTML = "";
         const fS = await getDocs(collection(db, "equipe")); const eS = await getDocs(collection(db, "epis"));
+        sF.innerHTML = ""; eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome}</option>`);
         fS.forEach(d => sF.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
-        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome} [${d.data().cat}]</option>`);
         new bootstrap.Modal('#mEntrega').show();
     };
 
@@ -175,7 +236,7 @@
         let dT = new Date(dH); dT.setDate(dH.getDate() + vida);
         await addDoc(collection(db, "entregas"), {
             fId: selFunc.value, fNome: selFunc.options[selFunc.selectedIndex].text,
-            eNome: selEpi.options[selEpi.selectedIndex].text.split(' [')[0], eId: selEpi.value,
+            eNome: selEpi.options[selEpi.selectedIndex].text, eId: selEpi.value,
             dataE: dH.getTime(), dataT: dT.getTime(), status: "Em Uso", resp: myEmail
         });
         await updateDoc(doc(db, "epis", selEpi.value), { qtd: increment(-parseInt(qtdEnt.value)) });
@@ -198,25 +259,25 @@
                 rE[i.eNome] = (rE[i.eNome] || 0) + 1;
 
                 let cl = i.status === 'Em Uso' ? 'st-uso' : (i.status === 'Abatido' ? 'st-aba' : 'st-dev');
-                list.innerHTML += `<tr><td><b>${i.fNome}</b></td><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><span class="status-badge ${cl}">${i.status}</span></td><td><small>${i.resp.split('@')[0]}</small></td><td class="actions-col"><button class="btn btn-sm text-danger" onclick="rem('entregas','${d.id}')">X</button></td></tr>`;
+                list.innerHTML += `<tr><td><small>${i.fNome.split(' ')[0]}</small></td><td><small>${i.eNome}</small></td><td><small>${new Date(i.dataE).toLocaleDateString()}</small></td><td><span class="status-badge ${cl}" style="font-size:0.5rem">${i.status}</span></td><td><small>${i.resp.split('.')[0]}</small></td><td class="actions-col"><button class="btn btn-sm text-danger" onclick="rem('entregas','${d.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
             });
             statSaidas.innerText = tS; statLixo.innerText = tL; statReuso.innerText = tR; statAtivo.innerText = tA;
-            detalheLixo.innerHTML = Object.entries(iL).map(e=>`<li class="list-group-item d-flex justify-content-between small"><span>${e[0]}</span><b>${e[1]} un</b></li>`).join("");
-            detalheReuso.innerHTML = Object.entries(iR).map(e=>`<li class="list-group-item d-flex justify-content-between small"><span>${e[0]}</span><b>${e[1]} un</b></li>`).join("");
-            rankingFunc.innerHTML = Object.entries(rF).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>`<li class="list-group-item d-flex justify-content-between"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
-            rankingEpi.innerHTML = Object.entries(rE).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>`<li class="list-group-item d-flex justify-content-between"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
+            detalheLixo.innerHTML = Object.entries(iL).map(e=>`<li class="list-group-item d-flex justify-content-between p-1"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
+            detalheReuso.innerHTML = Object.entries(iR).map(e=>`<li class="list-group-item d-flex justify-content-between p-1"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
+            rankingFunc.innerHTML = Object.entries(rF).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>`<li class="list-group-item d-flex justify-content-between p-1"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
+            rankingEpi.innerHTML = Object.entries(rE).sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>`<li class="list-group-item d-flex justify-content-between p-1"><span>${e[0]}</span><b>${e[1]}</b></li>`).join("");
         });
 
         onSnapshot(collection(db, "equipe"), snap => {
             listFunc.innerHTML = "";
             snap.forEach(d => {
                 const f = d.data();
-                listFunc.innerHTML += `<div class="col-md-4"><div class="card p-3 h-100">
-                    <div class="fw-bold">${f.nome}</div><small class="text-muted">ID: ${f.mat} | ${f.empresa || 'Gamil'}</small>
-                    <div class="mt-3 d-flex gap-1">
-                        <button class="btn btn-sm btn-primary flex-grow-1" onclick="verFicha('${d.id}','${f.nome}')">HISTÓRICO</button>
-                        <button class="btn btn-sm btn-light" onclick="editFunc('${d.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-light text-danger" onclick="rem('equipe','${d.id}')">X</button>
+                listFunc.innerHTML += `<div class="col-6 col-md-4"><div class="card p-2 h-100">
+                    <div class="fw-bold small">${f.nome}</div><small class="text-muted" style="font-size:0.6rem">${f.empresa || 'Gamil'}</small>
+                    <div class="mt-2 d-flex gap-1">
+                        <button class="btn btn-xs btn-primary py-1 flex-grow-1" style="font-size:0.6rem" onclick="verFicha('${d.id}','${f.nome}')">HIST.</button>
+                        <button class="btn btn-xs btn-light py-1" onclick="editFunc('${d.id}')"><i class="fas fa-edit small"></i></button>
+                        <button class="btn btn-xs btn-light text-danger py-1" onclick="rem('equipe','${d.id}')"><i class="fas fa-trash-can small"></i></button>
                     </div>
                 </div></div>`;
             });
@@ -226,18 +287,18 @@
             listEpi.innerHTML = "";
             snap.forEach(d => {
                 const e = d.data(); const icon = e.cat === 'Ferramenta' ? '<i class="fas fa-tools type-ferr"></i>' : '<i class="fas fa-shield-halved type-epi"></i>';
-                listEpi.innerHTML += `<tr><td>${icon}</td><td><b>${e.nome}</b></td><td>${e.ca || '-'}</td><td><b>${e.qtd}</b></td><td class="text-end actions-col"><button class="btn btn-sm btn-light" onclick="editEpi('${d.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="rem('epis','${d.id}')">X</button></td></tr>`;
+                listEpi.innerHTML += `<tr><td>${icon}</td><td><small>${e.nome}</small></td><td><small>${e.ca || '-'}</small></td><td><b>${e.qtd}</b></td><td class="text-end actions-col"><button class="btn btn-sm btn-light" onclick="editEpi('${d.id}')"><i class="fas fa-edit"></i></button></td></tr>`;
             });
         });
     }
 
     window.verFicha = async (id, n) => {
-        fichaNome.innerText = "Histórico: " + n; fichaListaAtivos.innerHTML = ""; fichaListaHist.innerHTML = "";
+        fichaNome.innerText = n; fichaListaAtivos.innerHTML = ""; fichaListaHist.innerHTML = "";
         const q = await getDocs(collection(db, "entregas"));
         q.forEach(d => {
             const i = d.data(); if(i.fId === id) {
-                if(i.status === 'Em Uso') fichaListaAtivos.innerHTML += `<tr><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><button class="btn btn-xs btn-danger" onclick="abrirModalDevolucao('${d.id}','${n}','${i.eId}','${id}')">Baixar</button></td></tr>`;
-                else fichaListaHist.innerHTML += `<tr><td>${i.eNome}</td><td>${i.status} (${i.dataDev ? i.dataDev.toDate().toLocaleDateString() : '-'})</td></tr>`;
+                if(i.status === 'Em Uso') fichaListaAtivos.innerHTML += `<tr><td><small>${i.eNome}</small></td><td><small>${new Date(i.dataE).toLocaleDateString()}</small></td><td><button class="btn btn-xs btn-danger p-1" style="font-size:0.6rem" onclick="abrirModalDevolucao('${d.id}','${n}','${i.eId}','${id}')">Devolver</button></td></tr>`;
+                else fichaListaHist.innerHTML += `<tr><td><small>${i.eNome}</small></td><td><small>${i.status}</small></td></tr>`;
             }
         });
         bootstrap.Modal.getOrCreateInstance('#mFicha').show();
@@ -281,12 +342,6 @@
     };
 
     window.rem = async (c, id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, c, id)); };
-    window.showSec = (id, el) => {
-        document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
