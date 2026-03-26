@@ -24,7 +24,7 @@
         .modal { z-index: 1060 !important; }
         .modal-backdrop { z-index: 1050 !important; }
         #mDevolucao { z-index: 1070 !important; }
-        #boxSub { display: none; } /* Escondido por padrão */
+        #boxSub { display: none; }
     </style>
 </head>
 <body>
@@ -84,7 +84,19 @@
 
 <div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Devolução / Baixa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que deseja fazer com este item de <br><b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><i class="fas fa-trash-alt d-block mb-1"></i> <b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><i class="fas fa-redo d-block mb-1"></i> <b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"></div></div></div></div>
 
-<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Nova Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">EPI / Material</label><select id="selEpi" class="form-select mb-3" required></select><label class="small fw-bold">Quantidade</label><input type="number" id="qtdEnt" class="form-control" value="1" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar Saída</button></div></form></div></div>
+<div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega">
+    <div class="modal-header"><h5>Nova Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select>
+        <label class="small fw-bold">EPI / Material</label><select id="selEpi" class="form-select mb-3" required></select>
+        <div class="row">
+            <div class="col-6"><label class="small fw-bold">Quantidade</label><input type="number" id="qtdEnt" class="form-control mb-3" value="1" required></div>
+            <div class="col-6"><label class="small fw-bold">Data da Entrega</label><input type="date" id="dataEntManual" class="form-control mb-3"></div>
+        </div>
+        <small class="text-muted">* Se não escolher data, o sistema usará o dia de hoje.</small>
+    </div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar Saída</button></div>
+</form></div></div>
 
 <div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Itens em Posse (Ativos)</h6><table class="table table-sm align-middle"><thead><tr><th>EPI</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
 
@@ -96,28 +108,19 @@
         <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
         <input type="date" id="fadm" class="form-control mb-3" required>
         <label class="small fw-bold mb-1">Vínculo</label>
-        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)">
-            <option value="Direto">Direto Gamil</option>
-            <option value="Subcontratada">Subcontratada</option>
-        </select>
-        <div id="boxSub">
-            <label class="small fw-bold mb-1">Qual Subcontratada?</label>
-            <input type="text" id="fempresa" class="form-control" placeholder="Nome da empresa">
-        </div>
+        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
+        <div id="boxSub"><label class="small fw-bold mb-1">Empresa Subcontratada</label><input type="text" id="fempresa" class="form-control"></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Dados</button></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
 </form></div></div>
 
 <div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi">
     <input type="hidden" id="editEpiId">
     <div class="modal-header"><h5>Cadastro de Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required>
-        <input type="text" id="eca" class="form-control mb-2" placeholder="CA">
-        <input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil (Dias)" required>
-        <input type="number" id="eqtd" class="form-control mb-2" placeholder="Qtd Inicial Stock" required>
+        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil (Dias)" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Qtd Inicial Stock" required>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Item</button></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
 </form></div></div>
 
 <script type="module">
@@ -161,15 +164,21 @@
     document.getElementById('fEntrega').onsubmit = async (e) => {
         e.preventDefault();
         const vida = parseInt(selEpi.options[selEpi.selectedIndex].dataset.vida);
-        const dE = new Date(); const dT = new Date(); dT.setDate(dE.getDate() + vida);
+        
+        // Lógica da Data Retroativa
+        let dataH = dataEntManual.value ? new Date(dataEntManual.value + 'T12:00:00') : new Date();
+        let dataT = new Date(dataH); 
+        dataT.setDate(dataH.getDate() + vida);
+
         const eId = selEpi.value; const qtd = parseInt(qtdEnt.value);
         await addDoc(collection(db, "entregas"), {
             fId: selFunc.value, fNome: selFunc.options[selFunc.selectedIndex].text,
             eNome: selEpi.options[selEpi.selectedIndex].text, eId: eId,
-            dataE: dE.getTime(), dataT: dT.getTime(), status: "Em Uso", resp: myEmail
+            dataE: dataH.getTime(), dataT: dataT.getTime(), status: "Em Uso", resp: myEmail
         });
         await updateDoc(doc(db, "epis", eId), { qtd: increment(-qtd) });
         bootstrap.Modal.getInstance(document.getElementById('mEntrega')).hide();
+        e.target.reset();
     };
 
     window.abrirModalDevolucao = (id, n, eid) => {
@@ -216,9 +225,8 @@
     window.verFicha = async (id, nome) => {
         document.getElementById('fichaNome').innerText = "Cautela: " + nome;
         const lA = document.getElementById('fichaListaAtivos'); const lH = document.getElementById('fichaListaHist');
-        lA.innerHTML = "Carregando..."; lH.innerHTML = "";
+        lA.innerHTML = ""; lH.innerHTML = "";
         const q = await getDocs(collection(db, "entregas"));
-        lA.innerHTML = "";
         q.forEach(d => {
             const i = d.data();
             if(i.fId === id) {
