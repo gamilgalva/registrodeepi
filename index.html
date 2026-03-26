@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamil ERP - Gestão de Ativos, EPIs e Ferramentas</title>
+    <title>Gamil ERP - BI & Gestão de Ativos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,19 +13,18 @@
         .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
         .logo-box { padding: 25px; border-bottom: 1px solid #f1f5f9; text-align: center; }
         .nav-link { color: #64748b; padding: 12px 20px; border-radius: 12px; margin: 5px 15px; cursor: pointer; text-decoration: none; font-weight: 600; display: flex; align-items: center; transition: 0.2s; }
+        .nav-link:hover { background: #f1f5f9; color: var(--gamil-blue); }
         .nav-link.active { background: var(--gamil-blue); color: white !important; box-shadow: 0 4px 12px rgba(30,91,176,0.2); }
         .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: white; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
         .status-badge { padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .st-uso { background: #dcfce7; color: #166534; }
         .st-dev { background: #f1f5f9; color: #475569; }
         .st-aba { background: #fee2e2; color: #991b1b; }
         #login-screen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .stat-card { border-left: 5px solid var(--gamil-blue); padding: 20px; }
         .modal { z-index: 1060 !important; }
-        .modal-backdrop { z-index: 1050 !important; }
         #boxSub { display: none; }
-        .type-epi { color: #1e5bb0; }
-        .type-ferr { color: #f59e0b; }
     </style>
 </head>
 <body>
@@ -45,9 +44,10 @@
     <nav class="sidebar">
         <div class="logo-box"><img src="logo.png" alt="Gamil" style="max-width: 150px;"></div>
         <div class="nav-container py-3">
-            <a class="nav-link active" onclick="showSec('sec-entregas', this)"><i class="fas fa-exchange-alt me-3"></i>Movimentação</a>
+            <a class="nav-link active" onclick="showSec('sec-dash', this)"><i class="fas fa-chart-line me-3"></i>Dashboard BI</a>
+            <a class="nav-link" onclick="showSec('sec-entregas', this)"><i class="fas fa-exchange-alt me-3"></i>Movimentação</a>
             <a class="nav-link" onclick="showSec('sec-func', this)"><i class="fas fa-id-card-clip me-3"></i>Controle de EPI</a>
-            <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-boxes-stacked me-3"></i>Inventário</a>
+            <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-boxes-stacked me-3"></i>Estoque</a>
         </div>
         <div class="mt-auto p-4 border-top text-center">
             <b id="loggedUser" class="small text-primary d-block"></b>
@@ -56,7 +56,31 @@
     </nav>
 
     <main class="main-content">
-        <section id="sec-entregas" class="content-sec">
+        <section id="sec-dash" class="content-sec">
+            <h3 class="fw-bold mb-4">Relatório de Desempenho & Custos</h3>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><div class="card stat-card"><small class="text-muted">Total de Saídas</small><h2 id="statSaidas" class="fw-bold">0</h2></div></div>
+                <div class="col-md-3"><div class="card stat-card border-danger"><small class="text-muted">Itens Abatidos (Lixo)</small><h2 id="statLixo" class="fw-bold text-danger">0</h2></div></div>
+                <div class="col-md-3"><div class="card stat-card border-success"><small class="text-muted">Itens Reutilizados</small><h2 id="statReuso" class="fw-bold text-success">0</h2></div></div>
+                <div class="col-md-3"><div class="card stat-card border-warning"><small class="text-muted">Em Uso Ativo</small><h2 id="statAtivo" class="fw-bold text-warning">0</h2></div></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold border-bottom pb-2">Top 5 Consumidores (Gasto/Uso)</h6>
+                        <ul class="list-group list-group-flush" id="rankingFunc"></ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h6 class="fw-bold border-bottom pb-2">Itens Mais Solicitados</h6>
+                        <ul class="list-group list-group-flush" id="rankingEpi"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-entregas" class="content-sec" style="display:none">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="fw-bold m-0">Movimentação</h3>
                 <button class="btn btn-primary shadow-sm" id="btnNovaEntrega"><i class="fas fa-plus me-2"></i>Registrar Saída</button>
@@ -65,18 +89,12 @@
         </section>
 
         <section id="sec-func" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4">
-                <h3 class="fw-bold">Equipe Gamil</h3>
-                <button class="btn btn-primary shadow-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Cadastro</button>
-            </div>
+            <div class="d-flex justify-content-between mb-4"><h3 class="fw-bold">Equipe Gamil</h3><button class="btn btn-primary shadow-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Cadastro</button></div>
             <div id="listFunc" class="row g-3"></div>
         </section>
 
         <section id="sec-epi" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4">
-                <h3 class="fw-bold">Inventário de Ativos</h3>
-                <button class="btn btn-primary shadow-sm" onclick="abrirModalEpi()"><i class="fas fa-cart-plus me-2"></i>Novo Item</button>
-            </div>
+            <div class="d-flex justify-content-between mb-4"><h3 class="fw-bold">Inventário de Ativos</h3><button class="btn btn-primary shadow-sm" onclick="abrirModalEpi()"><i class="fas fa-cart-plus me-2"></i>Novo Item</button></div>
             <div class="card p-4"><table class="table align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>ID / CA</th><th>Estoque</th><th>Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
         </section>
     </main>
@@ -88,33 +106,9 @@
 
 <div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Itens Ativos</h6><table class="table table-sm align-middle"><thead><tr><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
 
-<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc">
-    <input type="hidden" id="editFuncId">
-    <div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required>
-        <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
-        <input type="date" id="fadm" class="form-control mb-3" required>
-        <label class="small fw-bold mb-1">Vínculo</label>
-        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
-        <div id="boxSub"><label class="small fw-bold mb-1">Empresa Subcontratada</label><input type="text" id="fempresa" class="form-control"></div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Dados</button></div>
-</form></div></div>
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fFunc"><input type="hidden" id="editFuncId"><div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required><input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required><input type="date" id="fadm" class="form-control mb-3" required><label class="small fw-bold mb-1">Vínculo</label><select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select><div id="boxSub"><input type="text" id="fempresa" class="form-control" placeholder="Empresa"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
 
-<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi">
-    <input type="hidden" id="editEpiId">
-    <div class="modal-header"><h5>Informação do Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <label class="small fw-bold">Categoria</label>
-        <select id="ecat" class="form-select mb-2"><option value="EPI">EPI (Proteção)</option><option value="Ferramenta">Ferramenta</option></select>
-        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required>
-        <input type="text" id="eca" class="form-control mb-2" placeholder="CA / Serial">
-        <input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil (Dias)" required>
-        <input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
-</form></div></div>
+<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fEpi"><input type="hidden" id="editEpiId"><div class="modal-header"><h5>Cadastro Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="ecat" class="form-select mb-2"><option value="EPI">EPI</option><option value="Ferramenta">Ferramenta</option></select><input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA/ID"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil (Dias)" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Stock" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -135,7 +129,7 @@
     const db = getFirestore(app);
     let myEmail = "";
 
-    document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(() => loginError.innerText = "Falha no Login!");
+    document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(() => loginError.innerText = "Falha!");
     document.getElementById('btnLogout').onclick = () => signOut(auth);
     onAuthStateChanged(auth, u => {
         document.getElementById('login-screen').style.display = u ? 'none' : 'flex';
@@ -150,106 +144,107 @@
         sF.innerHTML = ""; sE.innerHTML = "";
         const fS = await getDocs(collection(db, "equipe")); const eS = await getDocs(collection(db, "epis"));
         fS.forEach(d => sF.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
-        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome} [${d.data().cat || 'EPI'}]</option>`);
+        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome}</option>`);
         new bootstrap.Modal('#mEntrega').show();
     };
 
     document.getElementById('fEntrega').onsubmit = async (e) => {
         e.preventDefault();
         const vida = parseInt(selEpi.options[selEpi.selectedIndex].dataset.vida);
-        let dataH = dataEntManual.value ? new Date(dataEntManual.value + 'T12:00:00') : new Date();
-        let dataT = new Date(dataH); dataT.setDate(dataH.getDate() + vida);
+        let dH = dataEntManual.value ? new Date(dataEntManual.value + 'T12:00:00') : new Date();
+        let dT = new Date(dH); dT.setDate(dH.getDate() + vida);
         await addDoc(collection(db, "entregas"), {
             fId: selFunc.value, fNome: selFunc.options[selFunc.selectedIndex].text,
-            eNome: selEpi.options[selEpi.selectedIndex].text.split(' [')[0], eId: selEpi.value,
-            dataE: dataH.getTime(), dataT: dataT.getTime(), status: "Em Uso", resp: myEmail
+            eNome: selEpi.options[selEpi.selectedIndex].text, eId: selEpi.value,
+            dataE: dH.getTime(), dataT: dT.getTime(), status: "Em Uso", resp: myEmail
         });
         await updateDoc(doc(db, "epis", selEpi.value), { qtd: increment(-parseInt(qtdEnt.value)) });
         bootstrap.Modal.getInstance(document.getElementById('mEntrega')).hide();
     };
 
     window.abrirModalDevolucao = (id, n, eid, fid) => {
-        document.getElementById('devNomeFunc').innerText = n;
-        document.getElementById('devEntregaId').value = id;
-        document.getElementById('devEpiId').value = eid;
-        document.getElementById('devFuncId').value = fid;
+        devNomeFunc.innerText = n; devEntregaId.value = id; devEpiId.value = eid; devFuncId.value = fid;
         new bootstrap.Modal('#mDevolucao').show();
     };
 
     window.processarDevolucao = async (s) => {
-        const id = devEntregaId.value; const eid = devEpiId.value; const fid = devFuncId.value;
-        await updateDoc(doc(db, "entregas", id), { status: s, dataDev: serverTimestamp() });
-        if(s === 'Devolvido') await updateDoc(doc(db, "epis", eid), { qtd: increment(1) });
+        await updateDoc(doc(db, "entregas", devEntregaId.value), { status: s, dataDev: serverTimestamp() });
+        if(s === 'Devolvido') await updateDoc(doc(db, "epis", devEpiId.value), { qtd: increment(1) });
         bootstrap.Modal.getInstance(document.getElementById('mDevolucao')).hide();
-        verFicha(fid, devNomeFunc.innerText);
+        verFicha(devFuncId.value, devNomeFunc.innerText);
     };
 
     function renderAll() {
-        onSnapshot(query(collection(db, "entregas"), orderBy("dataE", "desc")), snap => {
+        onSnapshot(collection(db, "entregas"), snap => {
             const list = document.getElementById('listEntregas'); list.innerHTML = "";
+            let tSaidas = 0, tLixo = 0, tReuso = 0, tAtivo = 0;
+            const rankFunc = {}, rankEpi = {};
+
             snap.forEach(d => {
                 const i = d.data();
+                tSaidas++;
+                if(i.status === 'Em Uso') tAtivo++;
+                else if(i.status === 'Abatido') tLixo++;
+                else if(i.status === 'Devolvido') tReuso++;
+                
+                rankFunc[i.fNome] = (rankFunc[i.fNome] || 0) + 1;
+                rankEpi[i.eNome] = (rankEpi[i.eNome] || 0) + 1;
+
                 let cl = i.status === 'Em Uso' ? 'st-uso' : (i.status === 'Abatido' ? 'st-aba' : 'st-dev');
-                list.innerHTML += `<tr><td><b>${i.fNome}</b></td><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><span class="status-badge ${cl}">${i.status}</span></td><td><button class="btn btn-sm text-danger" onclick="rem('entregas','${d.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                list.innerHTML += `<tr><td><b>${i.fNome}</b></td><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><span class="status-badge ${cl}">${i.status}</span></td><td><button class="btn btn-sm text-danger" onclick="rem('entregas','${d.id}')">X</button></td></tr>`;
             });
+
+            document.getElementById('statSaidas').innerText = tSaidas;
+            document.getElementById('statLixo').innerText = tLixo;
+            document.getElementById('statReuso').innerText = tReuso;
+            document.getElementById('statAtivo').innerText = tAtivo;
+
+            // Render Ranking
+            const rF = document.getElementById('rankingFunc'); rF.innerHTML = "";
+            Object.entries(rankFunc).sort((a,b) => b[1]-a[1]).slice(0,5).forEach(e => rF.innerHTML += `<li class="list-group-item d-flex justify-content-between"><span>${e[0]}</span><b class="text-primary">${e[1]} itens</b></li>`);
+            
+            const rE = document.getElementById('rankingEpi'); rE.innerHTML = "";
+            Object.entries(rankEpi).sort((a,b) => b[1]-a[1]).slice(0,5).forEach(e => rE.innerHTML += `<li class="list-group-item d-flex justify-content-between"><span>${e[0]}</span><b class="text-primary">${e[1]} saídas</b></li>`);
         });
-        onSnapshot(collection(db, "equipe"), snap => {
-            const list = document.getElementById('listFunc'); list.innerHTML = "";
-            snap.forEach(d => {
-                const f = d.data();
-                list.innerHTML += `<div class="col-md-4"><div class="card p-3 h-100"><div class="fw-bold fs-5">${f.nome}</div><small class="text-muted">ID: ${f.mat} | ${f.empresa || 'Gamil'}</small><div class="mt-3 d-flex gap-1"><button class="btn btn-sm btn-primary flex-grow-1" onclick="verFicha('${d.id}', '${f.nome}')">HISTÓRICO</button><button class="btn btn-sm btn-light" onclick="editFunc('${d.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="rem('equipe','${d.id}')"><i class="fas fa-trash-can"></i></button></div></div></div>`;
-            });
+
+        onSnapshot(collection(db, "equipe"), s => {
+            listFunc.innerHTML = "";
+            s.forEach(d => listFunc.innerHTML += `<div class="col-md-4"><div class="card p-3"><b>${d.data().nome}</b><div class="mt-2"><button class="btn btn-sm btn-primary w-100" onclick="verFicha('${d.id}','${d.data().nome}')">HISTÓRICO</button></div></div></div>`);
         });
-        onSnapshot(collection(db, "epis"), snap => {
-            const list = document.getElementById('listEpi'); list.innerHTML = "";
-            snap.forEach(d => {
-                const e = d.data();
-                const icon = e.cat === 'Ferramenta' ? '<i class="fas fa-tools type-ferr"></i>' : '<i class="fas fa-shield-halved type-epi"></i>';
-                list.innerHTML += `<tr><td>${icon}</td><td><b>${e.nome}</b></td><td>${e.ca || '-'}</td><td><b>${e.qtd}</b></td><td class="text-end"><button class="btn btn-sm btn-light" onclick="editEpi('${d.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="rem('epis','${d.id}')"><i class="fas fa-trash-can"></i></button></td></tr>`;
-            });
+
+        onSnapshot(collection(db, "epis"), s => {
+            listEpi.innerHTML = "";
+            s.forEach(d => listEpi.innerHTML += `<tr><td>${d.data().cat}</td><td><b>${d.data().nome}</b></td><td>${d.data().ca}</td><td>${d.data().qtd}</td><td><button class="btn btn-sm text-danger" onclick="rem('epis','${d.id}')">X</button></td></tr>`);
         });
     }
 
     window.verFicha = async (id, nome) => {
-        document.getElementById('fichaNome').innerText = "Histórico: " + nome;
-        const lA = document.getElementById('fichaListaAtivos'); const lH = document.getElementById('fichaListaHist');
-        lA.innerHTML = ""; lH.innerHTML = "";
+        fichaNome.innerText = "Histórico: " + nome;
+        fichaListaAtivos.innerHTML = ""; fichaListaHist.innerHTML = "";
         const q = await getDocs(collection(db, "entregas"));
         q.forEach(d => {
             const i = d.data();
             if(i.fId === id) {
-                if(i.status === 'Em Uso') lA.innerHTML += `<tr><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><button class="btn btn-xs btn-danger px-2" style="font-size:0.7rem" onclick="abrirModalDevolucao('${d.id}','${nome}','${i.eId}','${id}')">Devolver</button></td></tr>`;
-                else lH.innerHTML += `<tr><td>${i.eNome}</td><td>${i.status} (${i.dataDev ? i.dataDev.toDate().toLocaleDateString() : '-'})</td><td><button class="btn btn-xs text-danger" onclick="rem('entregas','${d.id}')">X</button></td></tr>`;
+                if(i.status === 'Em Uso') fichaListaAtivos.innerHTML += `<tr><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td><button class="btn btn-xs btn-danger" onclick="abrirModalDevolucao('${d.id}','${nome}','${i.eId}','${id}')">Devolver</button></td></tr>`;
+                else fichaListaHist.innerHTML += `<tr><td>${i.eNome}</td><td>${i.status} (${i.dataDev ? i.dataDev.toDate().toLocaleDateString() : '-'})</td></tr>`;
             }
         });
         bootstrap.Modal.getOrCreateInstance('#mFicha').show();
     };
 
-    window.abrirModalFunc = () => { document.getElementById('fFunc').reset(); editFuncId.value = ""; toggleSub('Direto'); new bootstrap.Modal('#mFunc').show(); };
-    document.getElementById('fFunc').onsubmit = async (e) => {
-        e.preventDefault(); const id = editFuncId.value;
-        const d = { nome: fnome.value, mat: fmat.value, adm: fadm.value, vinculo: fvinculo.value, empresa: fvinculo.value === 'Subcontratada' ? fempresa.value : 'Gamil' };
-        id ? await updateDoc(doc(db, "equipe", id), d) : await addDoc(collection(db, "equipe"), d);
+    window.rem = async (c, id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, c, id)); };
+    window.abrirModalFunc = () => { fFunc.reset(); editFuncId.value = ""; toggleSub('Direto'); new bootstrap.Modal('#mFunc').show(); };
+    fFunc.onsubmit = async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "equipe"), { nome: fnome.value, mat: fmat.value, adm: fadm.value, vinculo: fvinculo.value, empresa: fempresa.value });
         bootstrap.Modal.getInstance(document.getElementById('mFunc')).hide();
     };
-    window.editFunc = async (id) => {
-        const docSnap = await getDoc(doc(db, "equipe", id)); const f = docSnap.data();
-        fnome.value = f.nome; fmat.value = f.mat; fadm.value = f.adm; fvinculo.value = f.vinculo; fempresa.value = f.empresa || "";
-        editFuncId.value = id; toggleSub(f.vinculo); new bootstrap.Modal('#mFunc').show();
-    };
-
-    window.abrirModalEpi = () => { document.getElementById('fEpi').reset(); editEpiId.value = ""; new bootstrap.Modal('#mEpi').show(); };
-    document.getElementById('fEpi').onsubmit = async (e) => {
-        e.preventDefault(); const id = editEpiId.value;
-        const d = { cat: ecat.value, nome: enome.value, ca: eca.value, vida: parseInt(evida.value), qtd: parseInt(eqtd.value) };
-        id ? await updateDoc(doc(db, "epis", id), d) : await addDoc(collection(db, "epis"), d);
+    window.abrirModalEpi = () => { fEpi.reset(); editEpiId.value = ""; new bootstrap.Modal('#mEpi').show(); };
+    fEpi.onsubmit = async (e) => {
+        e.preventDefault();
+        await addDoc(collection(db, "epis"), { cat: ecat.value, nome: enome.value, ca: eca.value, vida: parseInt(evida.value), qtd: parseInt(eqtd.value) });
         bootstrap.Modal.getInstance(document.getElementById('mEpi')).hide();
     };
-    window.editEpi = async (id) => {
-        const dS = await getDoc(doc(db, "epis", id)); const e = dS.data();
-        enome.value = e.nome; eca.value = e.ca; evida.value = e.vida; eqtd.value = e.qtd; ecat.value = e.cat || 'EPI'; editEpiId.value = id; new bootstrap.Modal('#mEpi').show();
-    };
-    window.rem = async (c, id) => { if(confirm("Apagar permanentemente?")) await deleteDoc(doc(db, c, id)); };
     window.showSec = (id, el) => {
         document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
