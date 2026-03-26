@@ -67,50 +67,68 @@
     <main class="main-content">
         <section id="sec-dash" class="content-sec">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">Relatório de Desempenho & Ativos</h3>
+                <h3 class="fw-bold m-0 text-dark">Painel de Inteligência de Ativos</h3>
                 <button class="btn btn-outline-primary shadow-sm" onclick="window.print()"><i class="fas fa-print me-2"></i>Gerar Relatório</button>
             </div>
+            
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="card stat-card"><small class="text-muted">Total de Saídas</small><h2 id="statSaidas" class="fw-bold">0</h2></div></div>
+                <div class="col-md-3"><div class="card stat-card"><small class="text-muted">Total Saídas</small><h2 id="statSaidas" class="fw-bold">0</h2></div></div>
                 <div class="col-md-3"><div class="card stat-card border-danger"><small class="text-muted">Descarte (Lixo)</small><h2 id="statLixo" class="fw-bold text-danger">0</h2></div></div>
                 <div class="col-md-3"><div class="card stat-card border-success"><small class="text-muted">Reutilizados</small><h2 id="statReuso" class="fw-bold text-success">0</h2></div></div>
                 <div class="col-md-3"><div class="card stat-card border-warning"><small class="text-muted">Em Uso Ativo</small><h2 id="statAtivo" class="fw-bold text-warning">0</h2></div></div>
             </div>
-            <div class="row mb-4">
+
+            <div class="row g-3 mb-4">
                 <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2 text-danger">Detalhamento de Lixo</h6><ul class="list-group list-group-flush" id="detalheLixo"></ul></div></div>
                 <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2 text-success">Detalhamento de Reuso</h6><ul class="list-group list-group-flush" id="detalheReuso"></ul></div></div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2">Top 5 Consumidores</h6><ul class="list-group list-group-flush" id="rankingFunc"></ul></div></div>
+                <div class="col-md-6"><div class="card p-4 h-100"><h6 class="fw-bold border-bottom pb-2">Itens Mais Solicitados</h6><ul class="list-group list-group-flush" id="rankingEpi"></ul></div></div>
             </div>
         </section>
 
         <section id="sec-entregas" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">Movimentação</h3>
-                <button class="btn btn-primary shadow-sm" id="btnNovaEntrega"><i class="fas fa-plus me-2"></i>Registrar Saída</button>
-            </div>
+            <div class="d-flex justify-content-between align-items-center mb-4"><h3>Movimentação</h3><button class="btn btn-primary" id="btnNovaEntrega">Registrar Saída</button></div>
             <div class="card p-4"><table class="table align-middle"><thead><tr><th>Funcionário</th><th>Item</th><th>Data</th><th>Estado</th><th>Operador</th><th class="actions-col">Ação</th></tr></thead><tbody id="listEntregas"></tbody></table></div>
         </section>
 
         <section id="sec-func" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4"><h3>Equipe Gamil</h3><button class="btn btn-primary shadow-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Cadastro</button></div>
+            <div class="d-flex justify-content-between mb-4"><h3>Equipe</h3><button class="btn btn-primary" onclick="abrirModalFunc()">Novo Cadastro</button></div>
             <div id="listFunc" class="row g-3"></div>
         </section>
 
         <section id="sec-epi" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between mb-4"><h3>Inventário</h3><button class="btn btn-primary shadow-sm" onclick="abrirModalEpi()"><i class="fas fa-cart-plus me-2"></i>Novo Item</button></div>
+            <div class="d-flex justify-content-between mb-4"><h3>Inventário</h3><button class="btn btn-primary" onclick="abrirModalEpi()">Novo Item</button></div>
             <div class="card p-4"><table class="table align-middle"><thead><tr><th>Tipo</th><th>Item</th><th>ID / CA</th><th>Estoque</th><th class="actions-col">Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
         </section>
     </main>
 </div>
 
 <div class="modal fade" id="mDevolucao" tabindex="-1"><div class="modal-dialog"><div class="modal-content border-0 shadow-lg"><div class="modal-header"><h5>Baixa de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p>O que fazer com o item de <b id="devNomeFunc"></b>?</p><div class="d-grid gap-2"><button class="btn btn-outline-danger py-3" onclick="processarDevolucao('Abatido')"><b>Abater (Lixo)</b></button><button class="btn btn-outline-success py-3" onclick="processarDevolucao('Devolvido')"><b>Voltar ao Estoque</b></button></div><input type="hidden" id="devEntregaId"><input type="hidden" id="devEpiId"><input type="hidden" id="devFuncId"></div></div></div></div>
-
 <div class="modal fade" id="mEntrega" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega"><div class="modal-header"><h5>Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select><label class="small fw-bold">Item</label><select id="selEpi" class="form-select mb-3" required></select><div class="row"><div class="col-6"><label class="small fw-bold">Qtd</label><input type="number" id="qtdEnt" class="form-control mb-3" value="1" required></div><div class="col-6"><label class="small fw-bold">Data</label><input type="date" id="dataEntManual" class="form-control mb-3"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar</button></div></form></div></div>
-
 <div class="modal fade" id="mFicha" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow"><div class="modal-header bg-primary text-white"><h5 id="fichaNome" class="m-0"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><h6>Posse Ativa</h6><table class="table table-sm align-middle"><thead><tr><th>Item</th><th>Data</th><th>Ação</th></tr></thead><tbody id="fichaListaAtivos"></tbody></table><h6 class="mt-4 text-muted">Histórico</h6><table class="table table-sm text-muted" style="font-size: 0.85rem;"><tbody id="fichaListaHist"></tbody></table></div></div></div></div>
 
-<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc"><input type="hidden" id="editFuncId"><div class="modal-header"><h5>Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="fnome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required><input type="date" id="fadm" class="form-control mb-3" required><select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select><div id="boxSub"><input type="text" id="fempresa" class="form-control" placeholder="Empresa"></div></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fFunc">
+    <input type="hidden" id="editFuncId">
+    <div class="modal-header"><h5>Dados do Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="text" id="fnome" class="form-control mb-2" placeholder="Nome" required>
+        <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
+        <input type="date" id="fadm" class="form-control mb-3" required>
+        <select id="fvinculo" class="form-select mb-2" onchange="toggleSub(this.value)"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
+        <div id="boxSub"><input type="text" id="fempresa" class="form-control" placeholder="Empresa"></div>
+    </div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
+</form></div></div>
 
-<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi"><input type="hidden" id="editEpiId"><div class="modal-header"><h5>Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="ecat" class="form-select mb-2"><option value="EPI">EPI</option><option value="Ferramenta">Ferramenta</option></select><input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA/Serial"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required></div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div></form></div></div>
+<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEpi">
+    <input type="hidden" id="editEpiId">
+    <div class="modal-header"><h5>Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><select id="ecat" class="form-select mb-2"><option value="EPI">EPI</option><option value="Ferramenta">Ferramenta</option></select><input type="text" id="enome" class="form-control mb-2" placeholder="Nome" required><input type="text" id="eca" class="form-control mb-2" placeholder="CA/Serial"><input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil" required><input type="number" id="eqtd" class="form-control mb-2" placeholder="Estoque" required></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar</button></div>
+</form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
