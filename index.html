@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamil - Gestão de EPIs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gamil-blue: #1e5bb0; /* Tom de azul extraído da logo */
+            --gamil-gray: #7b7b7b;
+            --sidebar-bg: #f4f6f9;
+        }
+        
+        body { background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Sidebar Estilizada */
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            min-height: 100vh; 
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+        }
+        
+        .logo-container {
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--gamil-blue);
+            text-align: center;
+        }
+        
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .nav-link { 
+            color: var(--gamil-gray); 
+            font-weight: 500;
+            padding: 12px;
+            border-radius: 8px;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        
+        .nav-link:hover { background: #e9ecef; color: var(--gamil-blue); }
+        .nav-link.active { background: var(--gamil-blue); color: white !important; }
+
+        /* Estilo dos Cards e Botões */
+        .card { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; }
+        .btn-primary { background-color: var(--gamil-blue); border: none; }
+        .btn-primary:hover { background-color: #15458a; }
+        
+        .table thead { background-color: #f8f9fa; color: var(--gamil-gray); }
+        .status-badge { border-radius: 20px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+            <div class="logo-container">
+                <img src="logo.png" alt="GAMIL LOGO">
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link active" onclick="showSection('sec-func', this)"><i class="fas fa-users me-2"></i>Funcionários</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('sec-epi', this)"><i class="fas fa-boxes-stacked me-2"></i>Estoque de EPIs</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('sec-hist', this)"><i class="fas fa-history me-2"></i>Movimentação</a></li>
+            </ul>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 p-4">
+            
+            <section id="sec-func" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Gestão de Colaboradores</h2>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFunc"><i class="fas fa-plus me-2"></i>Novo Funcionário</button>
+                </div>
+                <div class="card p-3">
+                    <table class="table align-middle">
+                        <thead><tr><th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Ações</th></tr></thead>
+                        <tbody id="listaFunc"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="sec-epi" class="content-section d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Controle de Inventário</h2>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEPI"><i class="fas fa-box-open me-2"></i>Cadastrar EPI</button>
+                </div>
+                <div class="card p-3">
+                    <table class="table align-middle">
+                        <thead><tr><th>EPI</th><th>CA</th><th>Estoque</th><th>Vida Útil</th><th>Ações</th></tr></thead>
+                        <tbody id="listaEPI"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFunc" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" id="formFunc">
+            <div class="modal-header"><h5>Cadastrar Colaborador - Gamil</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Nome Completo</label><input type="text" id="fnome" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Matrícula</label><input type="text" id="fmat" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Cargo</label><input type="text" id="fcargo" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar no Sistema</button></div>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // SUAS CONFIGURAÇÕES DO FIREBASE (COLE AQUI O QUE VOCÊ COPIOU DO CONSOLE)
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "ID_SENDER",
+    appId: "ID_APP"
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // --- LÓGICA DE FUNCIONÁRIOS ---
+  const funcCol = collection(db, "funcionarios");
+
+  // Salvar Funcionário
+  document.getElementById('formFunc').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        await addDoc(funcCol, {
+            nome: document.getElementById('fnome').value,
+            matricula: document.getElementById('fmat').value,
+            cargo: document.getElementById('fcargo').value
+        });
+        document.getElementById('formFunc').reset();
+        bootstrap.Modal.getInstance(document.getElementById('modalFunc')).hide();
+    } catch (err) { console.error("Erro ao salvar:", err); }
+  });
+
+  // Renderizar em Tempo Real (onSnapshot)
+  onSnapshot(funcCol, (snapshot) => {
+    const lista = document.getElementById('listaFunc');
+    lista.innerHTML = "";
+    snapshot.forEach(docSnap => {
+        const f = docSnap.data();
+        lista.innerHTML += `
+            <tr>
+                <td><strong>${f.nome}</strong></td>
+                <td>${f.matricula}</td>
+                <td>${f.cargo}</td>
+                <td><button class="btn btn-sm text-danger" onclick="window.excluirFunc('${docSnap.id}')"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `;
+    });
+  });
+
+  // Função Global para Excluir (necessário para o onclick funcionar com type="module")
+  window.excluirFunc = async (id) => {
+    if(confirm("Deseja remover este colaborador da Gamil?")) {
+        await deleteDoc(doc(db, "funcionarios", id));
+    }
+  };
+
+  // Troca de Seções
+  window.showSection = (id, el) => {
+    document.querySelectorAll('.content-section').forEach(s => s.classList.add('d-none'));
+    document.getElementById(id).classList.remove('d-none');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
