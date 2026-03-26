@@ -3,110 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamil - ERP de Segurança</title>
+    <title>Gamil - ERP de Segurança e Atribuição</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --gamil-blue: #1e5bb0; --gamil-gray: #6b7280; --sidebar-width: 280px; }
-        body { background: #f3f4f6; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
-        .app-wrapper { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
-        .logo-box { padding: 25px; border-bottom: 1px solid #f3f4f6; text-align: center; }
-        .logo-box img { max-width: 160px; }
-        .nav-container { padding: 15px; flex-grow: 1; overflow-y: auto; }
-        .nav-link { color: var(--gamil-gray); padding: 12px 15px; border-radius: 12px; margin-bottom: 5px; display: flex; align-items: center; text-decoration: none; cursor: pointer; font-weight: 500; transition: 0.2s; }
-        .nav-link.active { background: var(--gamil-blue); color: white !important; box-shadow: 0 4px 10px rgba(30,91,176,0.25); }
+        :root { --gamil-blue: #1e5bb0; --sidebar-width: 280px; }
+        body { background: #f4f6f9; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .app-wrapper { display: flex; height: 100vh; }
+        .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; }
+        .logo-box { padding: 25px; border-bottom: 1px solid #eee; text-align: center; }
+        .nav-link { color: #666; padding: 12px 20px; border-radius: 10px; margin: 5px 15px; cursor: pointer; text-decoration: none; font-weight: 500; display: flex; align-items: center; }
+        .nav-link.active { background: var(--gamil-blue); color: white !important; box-shadow: 0 4px 8px rgba(30,91,176,0.3); }
         .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
-        .card { border: none; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; background: white; }
-        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .bg-vencido { background: #fee2e2; color: #b91c1c; }
-        .bg-atencao { background: #fef9c3; color: #854d0e; }
-        .bg-vigente { background: #dcfce7; color: #15803d; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: white; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .bg-vencido { background: #ffebeb; color: #d90429; }
+        .bg-vigente { background: #ebffef; color: #1a7a33; }
+        .bg-atencao { background: #fffbeb; color: #b45309; }
         #login-screen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <div class="card p-5 shadow-lg text-center" style="max-width: 420px; width: 95%;">
-        <img src="logo.png" alt="Gamil" class="mb-4 mx-auto d-block" style="max-width: 200px;">
-        <h5 class="fw-bold mb-4 text-secondary">Acesso Administrativo</h5>
-        <input type="email" id="emailInput" class="form-control mb-3 py-2" placeholder="E-mail Gamil Galva">
+    <div class="card p-5 shadow-lg text-center" style="max-width: 400px; width: 90%;">
+        <img src="logo.png" alt="Gamil" class="mb-4 mx-auto d-block" style="max-width: 180px;">
+        <input type="email" id="emailInput" class="form-control mb-3 py-2" placeholder="nome.sobrenome@gamilgalva.com">
         <input type="password" id="password" class="form-control mb-4 py-2" placeholder="Senha">
-        <button class="btn btn-primary w-100 fw-bold py-2" id="btnLogin">ENTRAR NO SISTEMA</button>
-        <p id="loginError" class="text-danger mt-3 small fw-bold"></p>
+        <button class="btn btn-primary w-100 fw-bold py-2" id="btnLogin">ENTRAR NO ERP</button>
+        <p id="loginError" class="text-danger mt-3 small"></p>
     </div>
 </div>
 
-<div id="main-content" class="app-wrapper" style="display:none">
+<div id="main-content-ui" class="app-wrapper" style="display:none">
     <nav class="sidebar">
-        <div class="logo-box"><img src="logo.png" alt="Gamil"></div>
-        <div class="nav-container">
-            <a class="nav-link active" onclick="showSec('sec-entregas', this)"><i class="fas fa-clipboard-list me-3"></i> Controle de Entregas</a>
-            <a class="nav-link" onclick="showSec('sec-func', this)"><i class="fas fa-user-group me-3"></i> Gestão de Equipe</a>
-            <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-warehouse me-3"></i> Estoque & Compras</a>
+        <div class="logo-box"><img src="logo.png" alt="Gamil" style="max-width: 150px;"></div>
+        <div class="nav-container py-3">
+            <a class="nav-link active" onclick="showSec('sec-entregas', this)"><i class="fas fa-history me-3"></i>Histórico Geral</a>
+            <a class="nav-link" onclick="showSec('sec-func', this)"><i class="fas fa-user-friends me-3"></i>Equipe & Fichas</a>
+            <a class="nav-link" onclick="showSec('sec-epi', this)"><i class="fas fa-cubes me-3"></i>Estoque</a>
         </div>
-        <div class="p-4 border-top">
-            <small class="text-muted d-block mb-2">Utilizador: <b id="loggedUser" class="text-dark"></b></small>
-            <button class="btn btn-outline-danger btn-sm w-100" id="btnLogout">Sair do ERP</button>
+        <div class="mt-auto p-4 border-top">
+            <small class="text-muted d-block mb-1">Logado como:</small>
+            <b id="loggedUser" class="small text-primary"></b>
+            <button class="btn btn-outline-danger btn-sm w-100 mt-3" id="btnLogout">Sair</button>
         </div>
     </nav>
 
     <main class="main-content">
         <section id="sec-entregas" class="content-sec">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0 text-dark">Histórico de Utilização</h3>
-                <button class="btn btn-primary shadow-sm px-4" id="btnNovaEntrega"><i class="fas fa-hand-holding-box me-2"></i>Registrar Entrega</button>
+                <h3 class="fw-bold m-0">Movimentação de EPIs</h3>
+                <button class="btn btn-primary" id="btnNovaEntrega"><i class="fas fa-plus me-2"></i>Registrar Entrega</button>
             </div>
             <div class="card p-4">
                 <table class="table align-middle">
-                    <thead><tr><th>Colaborador</th><th>EPI Entregue</th><th>Data Entrega</th><th>Data Troca</th><th>Status / Alerta</th><th>Responsável</th></tr></thead>
+                    <thead><tr><th>Colaborador</th><th>EPI</th><th>Data</th><th>Validade</th><th>Estado</th><th>Ações</th></tr></thead>
                     <tbody id="listEntregas"></tbody>
                 </table>
             </div>
         </section>
 
         <section id="sec-func" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0 text-dark">Colaboradores Admitidos</h3>
-                <button class="btn btn-primary shadow-sm" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Cadastro</button>
+            <div class="d-flex justify-content-between mb-4">
+                <h3 class="fw-bold">Gestão de Pessoal</h3>
+                <button class="btn btn-primary" onclick="abrirModalFunc()"><i class="fas fa-user-plus me-2"></i>Novo Funcionário</button>
             </div>
-            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Nome / ID</th><th>Admissão</th><th>Vínculo / Empresa</th><th>Ações</th></tr></thead><tbody id="listFunc"></tbody></table></div>
-        </section>
+            <div id="listFunc" class="row g-3"></div> </section>
 
         <section id="sec-epi" class="content-sec" style="display:none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0 text-dark">Inventário de Segurança</h3>
-                <button class="btn btn-primary shadow-sm" onclick="abrirModalEpi()"><i class="fas fa-plus-circle me-2"></i>Novo Lote</button>
+            <div class="d-flex justify-content-between mb-4">
+                <h3 class="fw-bold">Controle de Estoque</h3>
+                <button class="btn btn-primary" onclick="abrirModalEpi()"><i class="fas fa-plus-circle me-2"></i>Adicionar Lote</button>
             </div>
-            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Material</th><th>CA / Vida Útil</th><th>Estoque Atual</th><th>Data Compra</th><th>Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
+            <div class="card p-4"><table class="table align-middle"><thead><tr><th>Item</th><th>CA</th><th>Vida Útil</th><th>Qtd</th><th>Ações</th></tr></thead><tbody id="listEpi"></tbody></table></div>
         </section>
     </main>
 </div>
 
 <div class="modal fade" id="mEntrega" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content border-0 shadow-lg" id="fEntrega">
-            <div class="modal-header"><h5>Registrar Entrega de EPI</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <label class="small fw-bold text-muted mb-1">Selecionar Funcionário</label>
-                <select id="selFunc" class="form-select mb-3 py-2" required></select>
-                
-                <label class="small fw-bold text-muted mb-1">Selecionar EPI do Estoque</label>
-                <select id="selEpi" class="form-select mb-3 py-2" required></select>
-                
-                <label class="small fw-bold text-muted mb-1">Quantidade Entregue</label>
-                <input type="number" id="qtdEntregue" class="form-control mb-3 py-2" value="1" required min="1">
-            </div>
-            <div class="modal-footer"><button type="submit" class="btn btn-primary w-100 py-2">Confirmar Saída do Estoque</button></div>
-        </form>
-    </div>
+    <div class="modal-dialog"><form class="modal-content border-0 shadow" id="fEntrega">
+        <div class="modal-header"><h5>Nova Saída de Material</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <label class="small fw-bold">Colaborador</label><select id="selFunc" class="form-select mb-3" required></select>
+            <label class="small fw-bold">EPI / Material</label><select id="selEpi" class="form-select mb-3" required></select>
+            <label class="small fw-bold">Quantidade</label><input type="number" id="qtdEnt" class="form-control" value="1" required>
+        </div>
+        <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Confirmar Entrega</button></div>
+    </form></div>
 </div>
+
+<div class="modal fade" id="mFicha" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light"><h5 id="fichaNome" class="fw-bold m-0"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <h6>Materiais em posse do colaborador:</h6>
+            <table class="table small">
+                <thead><tr><th>EPI</th><th>Data</th><th>Prazo</th><th>Status</th></tr></thead>
+                <tbody id="fichaLista"></tbody>
+            </table>
+        </div>
+    </div></div>
+</div>
+
+<div class="modal fade" id="mFunc" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fFunc">
+    <input type="hidden" id="editFuncId">
+    <div class="modal-header"><h5>Cadastro/Edição Colaborador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="text" id="fnome" class="form-control mb-2" placeholder="Nome Completo" required>
+        <input type="text" id="fmat" class="form-control mb-2" placeholder="Matrícula" required>
+        <input type="date" id="fadm" class="form-control mb-2" required title="Data de Admissão">
+        <select id="fvinculo" class="form-select"><option value="Direto">Direto Gamil</option><option value="Subcontratada">Subcontratada</option></select>
+    </div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Dados</button></div>
+</form></div></div>
+
+<div class="modal fade" id="mEpi" tabindex="-1"><div class="modal-dialog"><form class="modal-content" id="fEpi">
+    <input type="hidden" id="editEpiId">
+    <div class="modal-header"><h5>Item de Estoque</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="text" id="enome" class="form-control mb-2" placeholder="Nome (Ex: Bota S3)" required>
+        <input type="text" id="eca" class="form-control mb-2" placeholder="CA">
+        <input type="number" id="evida" class="form-control mb-2" placeholder="Vida Útil em Dias" required>
+        <input type="number" id="eqtd" class="form-control mb-2" placeholder="Qtd Estoque" required>
+    </div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Salvar Item</button></div>
+</form></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAUV-fh15eg_1T3brh0xFL1mKtEaj2cDQE",
@@ -120,118 +147,130 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let currentUserEmail = "";
+    let myEmail = "";
 
-    // LOGIN & AUTH
-    document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(() => loginError.innerText = "Acesso Negado.");
+    // AUTH
+    document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, emailInput.value, password.value).catch(e => loginError.innerText = "Falha!");
     document.getElementById('btnLogout').onclick = () => signOut(auth);
     onAuthStateChanged(auth, u => {
         document.getElementById('login-screen').style.display = u ? 'none' : 'flex';
-        document.getElementById('main-content').style.display = u ? 'flex' : 'none';
-        if(u) { currentUserEmail = u.email; document.getElementById('loggedUser').innerText = u.email.split('@')[0]; renderAll(); }
+        document.getElementById('main-content-ui').style.display = u ? 'flex' : 'none';
+        if(u) { myEmail = u.email; document.getElementById('loggedUser').innerText = u.email; renderAll(); }
     });
 
-    // --- LÓGICA DE ENTREGA (LIGAÇÃO FUNCIONÁRIO <-> EPI) ---
+    // ENTREGAS
     document.getElementById('btnNovaEntrega').onclick = async () => {
-        const sF = document.getElementById('selFunc');
-        const sE = document.getElementById('selEpi');
-        sF.innerHTML = "<option value=''>Carregando...</option>";
-        sE.innerHTML = "<option value=''>Carregando...</option>";
-
-        const funcs = await getDocs(collection(db, "equipe"));
-        const epis = await getDocs(collection(db, "epis"));
-
+        const sF = document.getElementById('selFunc'); const sE = document.getElementById('selEpi');
         sF.innerHTML = ""; sE.innerHTML = "";
-        funcs.forEach(d => sF.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
-        epis.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome} (Disp: ${d.data().qtd})</option>`);
-        
+        const fS = await getDocs(collection(db, "equipe")); const eS = await getDocs(collection(db, "epis"));
+        fS.forEach(d => sF.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
+        eS.forEach(d => sE.innerHTML += `<option value="${d.id}" data-vida="${d.data().vida}">${d.data().nome}</option>`);
         new bootstrap.Modal('#mEntrega').show();
     };
 
     document.getElementById('fEntrega').onsubmit = async (e) => {
         e.preventDefault();
-        const epiOption = selEpi.options[selEpi.selectedIndex];
-        const vidaUtil = parseInt(epiOption.dataset.vida);
-        
-        const dataH = new Date();
-        const dataT = new Date();
-        dataT.setDate(dataH.getDate() + vidaUtil);
-
+        const vida = parseInt(selEpi.options[selEpi.selectedIndex].dataset.vida);
+        const dE = new Date(); const dT = new Date(); dT.setDate(dE.getDate() + vida);
         await addDoc(collection(db, "entregas"), {
-            funcId: selFunc.value,
-            funcNome: selFunc.options[selFunc.selectedIndex].text,
-            epiNome: selEpi.options[selEpi.selectedIndex].text,
-            epiId: selEpi.value,
-            qtd: parseInt(qtdEntregue.value),
-            dataEntrega: dataH.getTime(),
-            dataTroca: dataT.getTime(),
-            responsavel: currentUserEmail,
-            criadoEm: serverTimestamp()
+            fId: selFunc.value, fNome: selFunc.options[selFunc.selectedIndex].text,
+            eNome: selEpi.options[selEpi.selectedIndex].text, eId: selEpi.value,
+            dataE: dE.getTime(), dataT: dT.getTime(), status: "Ativo", resp: myEmail
         });
-        
-        // Opcional: Aqui poderíamos subtrair do estoque real (updateDoc no EPI)
         bootstrap.Modal.getInstance(document.getElementById('mEntrega')).hide();
     };
 
-    // --- RENDERIZAÇÃO DAS TABELAS ---
+    // RENDERIZAÇÃO
     function renderAll() {
-        // Render Entregas com Lógica de Alerta
-        onSnapshot(query(collection(db, "entregas"), orderBy("criadoEm", "desc")), snap => {
+        // Tabela de Entregas Geral
+        onSnapshot(query(collection(db, "entregas"), orderBy("dataE", "desc")), snap => {
             const list = document.getElementById('listEntregas'); list.innerHTML = "";
-            const hoje = new Date().getTime();
-
+            const agora = new Date().getTime();
             snap.forEach(d => {
-                const item = d.data();
-                const falta = item.dataTroca - hoje;
-                const dias = Math.ceil(falta / 86400000);
-                
-                let pill = "bg-vigente"; let label = "No Prazo";
-                if(dias <= 0) { pill = "bg-vencido"; label = "Vencido / Trocar"; }
-                else if(dias <= 7) { pill = "bg-atencao"; label = "Trocar em Breve"; }
-
-                list.innerHTML += `<tr>
-                    <td><b>${item.funcNome}</b></td>
-                    <td>${item.epiNome} <span class="badge bg-secondary">${item.qtd} un</span></td>
-                    <td>${new Date(item.dataEntrega).toLocaleDateString()}</td>
-                    <td>${new Date(item.dataTroca).toLocaleDateString()}</td>
-                    <td><span class="status-pill ${pill}">${label}</span></td>
-                    <td><small class="text-muted">${item.responsavel.split('@')[0]}</small></td>
-                </tr>`;
+                const i = d.data();
+                const dF = Math.ceil((i.dataT - agora) / 86400000);
+                let cl = dF <= 0 ? 'bg-vencido' : (dF <= 7 ? 'bg-atencao' : 'bg-vigente');
+                list.innerHTML += `<tr><td><b>${i.fNome}</b></td><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td>${new Date(i.dataT).toLocaleDateString()}</td><td><span class="status-badge ${cl}">${dF <= 0 ? 'VENCIDO' : 'OK'}</span></td><td><button class="btn btn-sm btn-light" onclick="renovar('${d.id}', ${i.dataT})"><i class="fas fa-sync"></i></button></td></tr>`;
             });
         });
 
-        // Render Funcionários
-        onSnapshot(collection(db, "equipe"), s => {
+        // Cards de Funcionários (Para Ficha Individual)
+        onSnapshot(collection(db, "equipe"), snap => {
             const list = document.getElementById('listFunc'); list.innerHTML = "";
-            s.forEach(d => {
+            snap.forEach(d => {
                 const f = d.data();
-                list.innerHTML += `<tr>
-                    <td><b>${f.nome}</b><br><small class="text-muted">ID: ${f.matricula}</small></td>
-                    <td>${new Date(f.entrada).toLocaleDateString()}</td>
-                    <td><span class="badge bg-light text-dark border">${f.empresa || 'Gamil'}</span></td>
-                    <td><button class="btn btn-sm btn-light text-danger" onclick="remItem('equipe','${d.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
+                list.innerHTML += `<div class="col-md-4"><div class="card p-3">
+                    <div class="fw-bold">${f.nome}</div>
+                    <small class="text-muted">Matrícula: ${f.mat}</small>
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="verFicha('${d.id}', '${f.nome}')"><i class="fas fa-eye me-1"></i> Ficha</button>
+                        <button class="btn btn-sm btn-light" onclick="editFunc('${d.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-light text-danger" onclick="rem('equipe','${d.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div></div>`;
             });
         });
 
-        // Render Estoque
-        onSnapshot(collection(db, "epis"), s => {
+        // Tabela Estoque
+        onSnapshot(collection(db, "epis"), snap => {
             const list = document.getElementById('listEpi'); list.innerHTML = "";
-            s.forEach(d => {
+            snap.forEach(d => {
                 const e = d.data();
-                list.innerHTML += `<tr>
-                    <td><b>${e.nome}</b></td>
-                    <td>CA: ${e.ca}<br><small>${e.vida} dias vida útil</small></td>
-                    <td><b>${e.qtd} un</b></td>
-                    <td>${new Date(e.compra).toLocaleDateString()}</td>
-                    <td><button class="btn btn-sm btn-light text-danger" onclick="remItem('epis','${d.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
+                list.innerHTML += `<tr><td><b>${e.nome}</b></td><td>${e.ca || '-'}</td><td>${e.vida} dias</td><td>${e.qtd} un</td><td class="text-end"><button class="btn btn-sm btn-light" onclick="editEpi('${d.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-light text-danger" onclick="rem('epis','${d.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         });
     }
 
-    // AUXILIARES
-    window.remItem = async (c, id) => { if(confirm("Confirmar exclusão?")) await deleteDoc(doc(db, c, id)); };
+    // FICHA INDIVIDUAL (O SEU PEDIDO)
+    window.verFicha = async (id, nome) => {
+        document.getElementById('fichaNome').innerText = "Ficha: " + nome;
+        const list = document.getElementById('fichaLista'); list.innerHTML = "Carregando...";
+        const entregas = await getDocs(collection(db, "entregas"));
+        list.innerHTML = "";
+        entregas.forEach(d => {
+            const i = d.data();
+            if(i.fId === id) {
+                const dF = Math.ceil((i.dataT - new Date().getTime()) / 86400000);
+                list.innerHTML += `<tr><td>${i.eNome}</td><td>${new Date(i.dataE).toLocaleDateString()}</td><td>${new Date(i.dataT).toLocaleDateString()}</td><td><span class="badge ${dF <= 0 ? 'bg-danger' : 'bg-success'}">${dF <= 0 ? 'Vencido' : 'No Prazo'}</span></td></tr>`;
+            }
+        });
+        new bootstrap.Modal('#mFicha').show();
+    };
+
+    // EDIÇÃO E CRUD
+    window.abrirModalFunc = () => { document.getElementById('fFunc').reset(); document.getElementById('editFuncId').value = ""; new bootstrap.Modal('#mFunc').show(); };
+    document.getElementById('fFunc').onsubmit = async (e) => {
+        e.preventDefault(); const id = editFuncId.value;
+        const data = { nome: fnome.value, mat: fmat.value, adm: fadm.value, vinculo: fvinculo.value };
+        id ? await updateDoc(doc(db, "equipe", id), data) : await addDoc(collection(db, "equipe"), data);
+        bootstrap.Modal.getInstance(document.getElementById('mFunc')).hide();
+    };
+    window.editFunc = async (id) => {
+        const d = await getDoc(doc(db, "equipe", id)); const f = d.data();
+        fnome.value = f.nome; fmat.value = f.mat; fadm.value = f.adm; fvinculo.value = f.vinculo;
+        editFuncId.value = id; new bootstrap.Modal('#mFunc').show();
+    };
+
+    window.abrirModalEpi = () => { document.getElementById('fEpi').reset(); document.getElementById('editEpiId').value = ""; new bootstrap.Modal('#mEpi').show(); };
+    document.getElementById('fEpi').onsubmit = async (e) => {
+        e.preventDefault(); const id = editEpiId.value;
+        const data = { nome: enome.value, ca: eca.value, vida: parseInt(evida.value), qtd: parseInt(eqtd.value) };
+        id ? await updateDoc(doc(db, "epis", id), data) : await addDoc(collection(db, "epis"), data);
+        bootstrap.Modal.getInstance(document.getElementById('mEpi')).hide();
+    };
+    window.editEpi = async (id) => {
+        const d = await getDoc(doc(db, "epis", id)); const e = d.data();
+        enome.value = e.nome; eca.value = e.ca; evida.value = e.vida; eqtd.value = e.qtd;
+        editEpiId.value = id; new bootstrap.Modal('#mEpi').show();
+    };
+
+    window.rem = async (c, id) => { if(confirm("Apagar permanentemente?")) await deleteDoc(doc(db, c, id)); };
+    window.renovar = async (id, dataT) => { 
+        if(confirm("Deseja renovar o uso ou confirmar a troca deste EPI?")) {
+            await updateDoc(doc(db, "entregas", id), { dataT: new Date().getTime() + (180 * 86400000) });
+        }
+    };
+
     window.showSec = (id, el) => {
         document.querySelectorAll('.content-sec').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
